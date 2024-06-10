@@ -1,112 +1,96 @@
-import React from 'react';
-import { ResizeMode, Video } from 'expo-av';
-import { StyleSheet, View } from 'react-native';
-import { Button } from 'react-native-paper';
+import React, { useEffect } from "react";
+import { ResizeMode, Video } from "expo-av";
+import { StyleSheet, View } from "react-native";
+import { Button } from "react-native-paper";
 
-
-import { CycleContext } from '../../../service/cycle/cycle.context';
+import { CycleContext } from "../../../service/cycle/cycle.context";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { BackButton, PlayButton } from "./video.style";
 
 export const VideoComponent = ({ content }) => {
-  const _onPlaybackStatusUpdate = playbackStatus => {
-  if (!playbackStatus.isLoaded) {
-    // Update your UI for the unloaded state
-    if (playbackStatus.error) {
-      console.log(`Encountered a fatal error during playback: ${playbackStatus.error}`);
-      // Send Expo team the error on Slack or the forums so we can help you debug!
-    }
-  } else {
-    // Update your UI for the loaded state
+  const { cycleContent, setProgress, retrieveCycle, progress } =
+    React.useContext(CycleContext);
 
-    if (playbackStatus.isPlaying) {
-      // Update your UI for the playing state
-    } else {
-      // Update your UI for the paused state
-    }
-
-    if (playbackStatus.isBuffering) {
-      // Update your UI for the buffering state
-    }
-
-    if (playbackStatus.didJustFinish && !playbackStatus.isLooping) {
-      // The player has just finished playing and will stop. Maybe you want to play something else?
-    }
-  }
-};
-  const _handleVideoRef = component => {
-  const playbackObject = component;
-  playbackObject.setOnPlaybackStatusUpdate(this._onPlaybackStatusUpdate);
-};
-  const { cycles, isLoading } = React.useContext(CycleContext);
   const [fullscreen, setFullscreen] = React.useState(false);
 
   const [status, setStatus] = React.useState({});
-  const uri = cycles.map((cycle) => {
-    console.log("test", cycle)
-   return(
-    cycle.cycleContent.map((cycleContent) => {
-      console.log(cycle);
-      let i = 1;
+  console.log("URL", cycleContent);
 
-      if (cycleContent.displayOrder === i) {
-        i++;
-        console.log("result",cycleContent.content[0])
-        return cycleContent.content[0];
-      } else {
-        i = 1;
+  const _onPlaybackStatusUpdate = async (playbackStatus) => {
+    let hasStarted = false;
+    if (playbackStatus.isLoaded) {
+      if (playbackStatus.error) {
+        console.log(
+          `Encountered a fatal error during playback: ${playbackStatus.error}`,
+        );
+        // Send Expo team the error on Slack or the forums so we can help you debug!
       }
-      console.log(i);
-    }))
-  });
+    } else {
+      // Update your UI for the loaded state
 
-console.log(uri);
+      if (playbackStatus.isPlaying) {
+      } else {
+        // Update your UI for the paused state
+      }
+
+      if (playbackStatus.isBuffering) {
+        // Update your UI for the buffering state
+      }
+    }
+    if (hasStarted === false) {
+      if (playbackStatus.positionMillis > 0) {
+        hasStarted = true;
+        setProgress(0);
+      }
+    }
+    if (playbackStatus.didJustFinish && !playbackStatus.isLooping) {
+      // The player has just finished playing and will stop. Maybe you want to play something else?
+      setProgress(1);
+    }
+  };
+  const video = React.useRef(null);
+  const _handleVideoRef = (component) => {
+    const playbackObject = component;
+    component.setOnPlaybackStatusUpdate(this._onPlaybackStatusUpdate);
+  };
+
   return (
     <>
-    <Video
-      ref={this._handleVideoRef} // Store reference
-      onError={this.videoError}
-      source={{
-        uri: uri[0][0],
-      }}
-      resizeMode={ResizeMode.CONTAIN}
-      onFullscreenUpdate={() => setStatus(!fullscreen)}
-      style={styles.video}
-    />
-     <View style={styles.buttons}>
-          <Button
-            icon={status.isPlaying ? 'pause' : 'play'}
-            mode="contained"
-            onPress={() => {
-              return status.isPlaying
-                ? video.current.pauseAsync()
-                : video.current.playAsync();
-            }}
-          />
-          <Button
-            icon="fullscreen"
-            mode="contained"
-            onPress={() =>
-              fullscreen
-                ? video.current.dismissFullscreenPlayer()
-                : video.current.presentFullscreenPlayer()
-            }
-          />
-        </View>
-        </>
+      <Video
+        ref={video} // Store reference
+        source={{
+          uri: `https://4bmedia.s3.eu-west-3.amazonaws.com/cycle_video/${cycleContent}`,
+        }}
+        resizeMode={ResizeMode.CONTAIN}
+        onFullscreenUpdate={() => setStatus(!fullscreen)}
+        style={styles.video}
+        onPlaybackStatusUpdate={_onPlaybackStatusUpdate}
+      />
+      <PlayButton
+        icon={status.isPlaying ? "pause" : "play"}
+        mode="contained"
+        onPress={() => {
+          return _onPlaybackStatusUpdate.isPlaying
+            ? video.current.pauseAsync()
+            : video.current.playAsync();
+        }}
+      />
+    </>
   );
 };
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   buttons: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 10,
     right: 10,
   },
   video: {
-    alignSelf: 'center',
+    alignSelf: "center",
     width: 600,
     height: 350,
   },

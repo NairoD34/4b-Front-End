@@ -1,9 +1,11 @@
-import styled from 'styled-components/native';
-import { Button } from 'react-native-paper';
-import { Text } from '../../../components/typography/text.component';
+import styled from "styled-components/native";
+import { Button } from "react-native-paper";
+import { Text } from "../../../components/typography/text.component";
+import { Platform } from "react-native";
 
 export const ProfileInput = styled.TextInput.attrs({
-  placeholderTextColor: 'white',textColor:"white"
+  placeholderTextColor: "white",
+  textColor: "white",
 })`
   background-color: #5c8dff;
   margin-bottom: 20px;
@@ -15,14 +17,14 @@ export const ProfileInput = styled.TextInput.attrs({
 `;
 
 export const ProfileBackground = styled.ImageBackground.attrs({
-  source: require('../../../../assets/login-bg.png'),
+  source: require("../../../../assets/login-bg.png"),
 })`
   flex: 1;
   align-items: center;
   justify-content: center;
 `;
 export const BackButton = styled(Button).attrs({
-  textColor: '#FFFFFF',
+  textColor: "#FFFFFF",
 })`
   position: absolute;
   color: white;
@@ -31,7 +33,7 @@ export const BackButton = styled(Button).attrs({
 `;
 export const ProfileTitle = styled(Text)`
   color: #4649e3;
-  margin-top: 50px;
+  margin-top: ${Platform.OS === "ios" ? `50px` : `25px`};
   margin-bottom: 25px;
 `;
 export const ProfileContainer = styled.View`
@@ -41,15 +43,15 @@ export const ProfileContainer = styled.View`
 export const GenreView = styled.View`
   flex-direction: row;
   align-items: center;
-  justify-content: space-arround;
+  justify-content: space-around;
   margin-bottom: 20px;
   width: auto;
 `;
 export const DobView = styled.View`
-width: auto;
+  width: auto;
   flex-direction: row;
   align-items: center;
-  justify-content: space-arround;
+  justify-content: space-around;
   margin-bottom: 20px;
 `;
 export const RightBlockView = styled.View`
@@ -60,7 +62,7 @@ export const LeftBlockView = styled.View`
 `;
 
 export const ProfileButton = styled(Button).attrs({
-  mode: 'contained',
+  mode: "contained",
 })`
   background-color: #4649e3;
   margin-top: 10px;
@@ -73,13 +75,13 @@ export const TextButton = styled.Text`
   font-size: 21px;
 `;
 export const DobInput = styled.TextInput.attrs({
-  placeholderTextColor: 'white',
+  placeholderTextColor: "white",
 })`
-background-color:#5C8DFF;
-padding: 5px;
+  background-color: #5c8dff;
+  padding: 5px;
   text-align: center;
   border-radius: 10px;
   font-size: 20px;
-  margin-left:15px;
-  margin-right:7.5px;
+  margin-left: 15px;
+  margin-right: 7.5px;
 `;

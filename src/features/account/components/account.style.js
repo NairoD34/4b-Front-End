@@ -1,4 +1,5 @@
 import styled from "styled-components/native";
+import { Platform } from "react-native";
 import { Button } from "react-native-paper";
 import { Text } from "../../../components/typography/text.component";
 
@@ -35,19 +36,19 @@ export const BackButton = styled(Button).attrs({
 `;
 export const RegisterTitle = styled(Text)`
   color: #e3a546;
-  margin-top: 50px;
-  margin-bottom: 25px;
+  margin-top: ${Platform.OS === "ios" ? `50px` : `25px`};
+  margin-bottom: 15px;
 `;
 export const LoginTitle = styled(Text)`
   color: #4649e3;
-  margin-top: 50px;
+  margin-top: ${Platform.OS === "ios" ? `50px` : `25px`};
   margin-bottom: 25px;
 `;
 export const GenreView = styled.View`
   flex-direction: row;
   align-items: center;
   justify-content: space-around;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 `;
 export const RightBlockView = styled.View`
   margin-left: 15px;
@@ -103,6 +104,10 @@ export const LoginButton = styled(Button).attrs({
 `;
 export const TextButton = styled.Text`
   font-size: 21px;
+`;
+export const TextError = styled.Text`
+  color: crimson;
+  text-align: center;
 `;
 export const AccountLine = styled.View`
   background-color: #c1c1c1;

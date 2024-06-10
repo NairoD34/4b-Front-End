@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { View, Image, StyleSheet, TextInput } from 'react-native';
-import { Button } from 'react-native-paper';
+import React, { useState, useContext } from "react";
+import { View, Image, StyleSheet, TextInput } from "react-native";
+import { Button } from "react-native-paper";
 
-import { SafeArea } from '../../../components/utility/safe-area.component';
-import {Text} from "../../../components/typography/text.component";
+import { SafeArea } from "../../../components/utility/safe-area.component";
+import { Text } from "../../../components/typography/text.component";
 import {
   RegisterBackground,
   TextButton,
@@ -16,74 +16,98 @@ import {
   GenreView,
   RegisterTitle,
   BackButton,
-  RegisterContainer
-} from '../components/account.style';
+  RegisterContainer,
+  TextError,
+} from "../components/account.style";
+import { DobInput } from "../../profile/components/profile.style";
+import { DobView } from "../../personnal-info/components/personnal-info.style";
+import { AccountContext } from "../../../service/account/account.context";
+import { LoadingScreen } from "../../loading/screens/loading.screen";
 
 export const RegisterScreen = ({ navigation }) => {
-  const [genre, setGenre] = useState();
   const [isActive, setIsActive] = useState(false);
-  const [bgMenColor, setBgMenColor] = useState('#5C8DFF');
-  const [bgWomenColor, setBgWomenColor] = useState('#5C8DFF');
-  console.log(genre);
+  const [date, setDate] = useState(undefined);
+  const {
+    setFirstname,
+    setLastname,
+    setDay,
+    setMonth,
+    setYear,
+    setEmail,
+    setPassword,
+    handleRegister,
+    handleLogin,
+    error,
+    isVerified,
+    isLoading,
+  } = useContext(AccountContext);
   return (
     <RegisterBackground>
-    <BackButton
-          onPress={() => navigation.goBack()}>
-          {'<'}
-          Retour
-        </BackButton>
-      <SafeArea style={{ alignItems: 'center' }}>
-        
+      <BackButton onPress={() => navigation.goBack()}>
+        {"<"}
+        Retour
+      </BackButton>
+      <SafeArea style={{ alignItems: "center" }}>
         <RegisterTitle variant="title">Inscription</RegisterTitle>
+        {error ? <TextError>{error}</TextError> : <View />}
+
         <RegisterContainer>
           <LeftBlockView>
             <AccountInput
               placeholder="Nom"
-              
+              onChangeText={(n) => setLastname(n)}
             />
             <AccountInput
               placeholder="Prénom"
+              onChangeText={(p) => setFirstname(p)}
             />
             <AccountInput
               placeholder="E-mail"
               keyboardType="email-address"
+              onChangeText={(e) => setEmail(e)}
             />
           </LeftBlockView>
           <RightBlockView>
-            <GenreView>
-              <Text variant="label">Genre</Text>
-              <Button
-                style={{ backgroundColor: bgMenColor, borderRadius: 15 }}
-                mode="contained"
-                onPress={() => {
-                  setBgMenColor('#E3A546');
-                  setBgWomenColor('#5C8DFF');
-                  setGenre('Homme');
-                }}>
-                Homme
-              </Button>
-              <Button
-                style={{ backgroundColor: bgWomenColor, borderRadius: 15 }}
-                mode="contained"
-                onPress={() => {
-                  setBgWomenColor('#E3A546');
-                  setBgMenColor('#5C8DFF');
-                  setGenre('Femme');
-                }}>
-                Femme
-              </Button>
-            </GenreView>
             <AccountInput
               placeholder="Mot de passe"
               secureTextEntry={true}
+              onChangeText={(mdp) => setPassword(mdp)}
             />
+            <View
+              style={{
+                height: 50,
+              }}
+            />
+            <DobView>
+              <Text variant="label">Date de naissance</Text>
+              <View style={{ flexDirection: "row", marginLeft: 20 }}>
+                <DobInput
+                  placeholder={"DD"}
+                  onChangeText={(d) => setDay(d)}
+                  maxLength={2}
+                  keyboardType={"number-pad"}
+                />
+                <DobInput
+                  placeholder={"MM"}
+                  onChangeText={(m) => setMonth(m)}
+                  maxLength={2}
+                  keyboardType={"number-pad"}
+                />
+                <DobInput
+                  placeholder={"YYYY"}
+                  onChangeText={(y) => setYear(y)}
+                  maxLength={4}
+                  keyboardType={"number-pad"}
+                />
+              </View>
+            </DobView>
           </RightBlockView>
         </RegisterContainer>
         <ValidateView>
           <Button
-            icon={isActive ? 'check' : 'square'}
-            textColor={isActive ? 'white' : '#4649E3'}
-            buttonColor={isActive ? '#4649E3' : 'white'}
+            icon={isActive ? "check" : "square"}
+            textColor={isActive ? "white" : "#4649E3"}
+            buttonColor={isActive ? "#4649E3" : "white"}
             onPress={() => {
               setIsActive(!isActive);
             }}
@@ -92,11 +116,18 @@ export const RegisterScreen = ({ navigation }) => {
             J'accepte les conditions générales d'utilisation
           </ConditionText>
         </ValidateView>
-        <RegisterButton>
+        <RegisterButton
+          onPress={() => {
+            if (isActive) {
+              handleRegister();
+            } else {
+              alert("Veuillez accepter les conditions générales d'utilisation");
+            }
+          }}
+        >
           <TextButton style={{ fontSize: 22 }}>Valider</TextButton>
         </RegisterButton>
       </SafeArea>
     </RegisterBackground>
   );
 };
-

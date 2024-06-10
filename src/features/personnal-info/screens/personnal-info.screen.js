@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { Button } from 'react-native-paper';
-import { DatePickerInput } from 'react-native-paper-dates';
+import React, { useContext, useState } from "react";
+import { Button } from "react-native-paper";
+import { DatePickerInput } from "react-native-paper-dates";
 
-import { SafeArea } from '../../../components/utility/safe-area.component';
-import { Text } from '../../../components/typography/text.component';
+import { SafeArea } from "../../../components/utility/safe-area.component";
+import { Text } from "../../../components/typography/text.component";
 import {
   PersonnalInfoBackground,
   TextButton,
@@ -16,78 +16,76 @@ import {
   BackButton,
   PersonnalInfoContainer,
   DobView,
-} from '../components/personnal-info.style';
+  PasswordButton,
+} from "../components/personnal-info.style";
+import { AccountContext } from "../../../service/account/account.context";
+import { View } from "react-native";
+import { DobInput } from "../../profile/components/profile.style";
+import { LoadingScreen } from "../../loading/screens/loading.screen";
 
 export const PersonnalInfoScreen = ({ navigation }) => {
   const [genre, setGenre] = useState();
   const [isActive, setIsActive] = useState(false);
-  const [bgMenColor, setBgMenColor] = useState('#5C8DFF');
-  const [bgWomenColor, setBgWomenColor] = useState('#5C8DFF');
-   const [inputDate, setInputDate] = useState(undefined)
-  console.log(genre);
+  const [bgMenColor, setBgMenColor] = useState("#5C8DFF");
+  const [bgWomenColor, setBgWomenColor] = useState("#5C8DFF");
+  const [date, setDate] = useState(undefined);
+  const { firstname, lastname, dob, email, password, isLoading } =
+    useContext(AccountContext);
   return (
-    <PersonnalInfoBackground>
-      <BackButton onPress={() => navigation.goBack()}>
-        {'<'}
-        Retour
-      </BackButton>
-      <SafeArea style={{ alignItems: 'center' }}>
-        <PersonnalInfoTitle variant="title">Mon compte</PersonnalInfoTitle>
-        <PersonnalInfoContainer>
-          <LeftBlockView>
-            <PersonnalInfoInput placeholder="Nom" />
-            <PersonnalInfoInput placeholder="Prénom" />
-            <PersonnalInfoInput
-              placeholder="E-mail"
-              keyboardType="email-address"
-            />
-          </LeftBlockView>
-          <RightBlockView>
-            <GenreView>
-              <Text variant="label">Genre</Text>
-              <Button
-                style={{ backgroundColor: bgMenColor, borderRadius: 15 }}
-                mode="contained"
-                onPress={() => {
-                  setBgMenColor('#E3A546');
-                  setBgWomenColor('#5C8DFF');
-                  setGenre('Homme');
-                }}>
-                Homme
-              </Button>
-              <Button
-                style={{ backgroundColor: bgWomenColor, borderRadius: 15 }}
-                mode="contained"
-                onPress={() => {
-                  setBgWomenColor('#E3A546');
-                  setBgMenColor('#5C8DFF');
-                  setGenre('Femme');
-                }}>
-                Femme
-              </Button>
-            </GenreView>
-            <PersonnalInfoInput
-              placeholder="Mot de passe"
-              secureTextEntry={true}
-            />
-           
-            <Text variant="label">Date de naissance</Text>
-            <DobView>
-              <DatePickerInput
-                locale="fr"
-                value={inputDate}
-                onChange={(d) => setInputDate(d)}
-                inputMode="start"
-                style={{backgroundColor: '#5C8DFF' }}
-                placeholder="Date de naissance"
-              />
-            </DobView>
-          </RightBlockView>
-        </PersonnalInfoContainer>
-        <PersonnalInfoButton>
-          <TextButton style={{ fontSize: 22 }}>Enregistrer</TextButton>
-        </PersonnalInfoButton>
-      </SafeArea>
-    </PersonnalInfoBackground>
+    <View style={{ flex: 1 }}>
+      {isLoading ? (
+        <LoadingScreen />
+      ) : (
+        <PersonnalInfoBackground>
+          <BackButton onPress={() => navigation.goBack()}>
+            {"<"}
+            Retour
+          </BackButton>
+          <SafeArea style={{ alignItems: "center" }}>
+            <PersonnalInfoTitle variant="title">Mon compte</PersonnalInfoTitle>
+            <PersonnalInfoContainer>
+              <LeftBlockView>
+                <PersonnalInfoInput placeholder={firstname} />
+                <PersonnalInfoInput placeholder={lastname} />
+                <PersonnalInfoInput
+                  placeholder={email}
+                  keyboardType="email-address"
+                />
+              </LeftBlockView>
+              <RightBlockView>
+                <PasswordButton>Changer votre mot de passe ?</PasswordButton>
+
+                <DobView>
+                  <Text variant="label">Date de naissance</Text>
+                  <View style={{ flexDirection: "row", marginLeft: 20 }}>
+                    <DobInput
+                      placeholder={dob.day}
+                      onChangeText={(d) => setDate({ day: d })}
+                      maxLength={2}
+                      keyboardType={"number-pad"}
+                    />
+                    <DobInput
+                      placeholder={dob.month}
+                      onChangeText={(m) => setDate({ month: m })}
+                      maxLength={2}
+                      keyboardType={"number-pad"}
+                    />
+                    <DobInput
+                      placeholder={dob.year}
+                      onChangeText={(y) => setDate({ year: y })}
+                      maxLength={4}
+                      keyboardType={"number-pad"}
+                    />
+                  </View>
+                </DobView>
+              </RightBlockView>
+            </PersonnalInfoContainer>
+            <PersonnalInfoButton>
+              <TextButton style={{ fontSize: 22 }}>Enregistrer</TextButton>
+            </PersonnalInfoButton>
+          </SafeArea>
+        </PersonnalInfoBackground>
+      )}
+    </View>
   );
 };
