@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useRef } from "react";
 import { Button } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome";
-
+import LottieView from "lottie-react-native";
 import {
   HomepageBackground,
   HomepageButton,
@@ -12,16 +12,49 @@ import { CycleContext } from "../../../service/cycle/cycle.context";
 import { LoadingScreen } from "../../loading/screens/loading.screen";
 import { AccountContext } from "../../../service/account/account.context";
 
-export const HomepageScreen = ({ navigation }) => {
-  const { retrieveCycle } = React.useContext(CycleContext);
+export const HomepageScreen = ({ route, navigation }) => {
+  const { retrieveCycle, isFinished, setIsFinished } =
+    React.useContext(CycleContext);
   const { isLoading } = React.useContext(AccountContext);
-
+  const confettiRef = useRef(null);
+  React.useEffect(() => {
+    if (route.params?.message) {
+      // Post updated, do something with `route.params.post`
+      // For example, send the post to the server
+      alert(route.params.message);
+      TriggerConfetti();
+      route.params.message = null;
+    }
+  }, [route.params?.message]);
+  const TriggerConfetti = () => {
+    confettiRef.current?.play(0);
+    return (
+      <LottieView
+        ref={confettiRef}
+        source={require("../../../../assets/confetti.json")}
+        autoPlay={true}
+        loop={false}
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 1000,
+          pointerEvents: "none",
+        }}
+        resizeMode="cover"
+      />
+    );
+  };
   return (
     <View style={{ flex: 1 }}>
       {isLoading ? (
         <LoadingScreen />
       ) : (
         <HomepageBackground>
+          {isFinished ? <TriggerConfetti /> : <View />}
+
           <Icon
             style={{ position: "absolute", top: 25, left: 25 }}
             size={50}

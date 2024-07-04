@@ -24,13 +24,20 @@ import { DobInput } from "../../profile/components/profile.style";
 import { LoadingScreen } from "../../loading/screens/loading.screen";
 
 export const PersonnalInfoScreen = ({ navigation }) => {
-  const [genre, setGenre] = useState();
-  const [isActive, setIsActive] = useState(false);
-  const [bgMenColor, setBgMenColor] = useState("#5C8DFF");
-  const [bgWomenColor, setBgWomenColor] = useState("#5C8DFF");
-  const [date, setDate] = useState(undefined);
-  const { firstname, lastname, dob, email, password, isLoading } =
-    useContext(AccountContext);
+  const {
+    firstname,
+    lastname,
+    dob,
+    email,
+    isLoading,
+    setModifyFirstname,
+    setModifyLastname,
+    setModifyEmail,
+    setDay,
+    setMonth,
+    setYear,
+    handleUsersDataModify,
+  } = useContext(AccountContext);
   return (
     <View style={{ flex: 1 }}>
       {isLoading ? (
@@ -45,11 +52,18 @@ export const PersonnalInfoScreen = ({ navigation }) => {
             <PersonnalInfoTitle variant="title">Mon compte</PersonnalInfoTitle>
             <PersonnalInfoContainer>
               <LeftBlockView>
-                <PersonnalInfoInput placeholder={firstname} />
-                <PersonnalInfoInput placeholder={lastname} />
+                <PersonnalInfoInput
+                  placeholder={firstname}
+                  onChangeText={(t) => setModifyFirstname(t)}
+                />
+                <PersonnalInfoInput
+                  placeholder={lastname}
+                  onChangeText={(t) => setModifyLastname(t)}
+                />
                 <PersonnalInfoInput
                   placeholder={email}
                   keyboardType="email-address"
+                  onChangeText={(t) => setModifyEmail(t)}
                 />
               </LeftBlockView>
               <RightBlockView>
@@ -60,19 +74,19 @@ export const PersonnalInfoScreen = ({ navigation }) => {
                   <View style={{ flexDirection: "row", marginLeft: 20 }}>
                     <DobInput
                       placeholder={dob.day}
-                      onChangeText={(d) => setDate({ day: d })}
+                      onChangeText={(d) => setDay(d)}
                       maxLength={2}
                       keyboardType={"number-pad"}
                     />
                     <DobInput
                       placeholder={dob.month}
-                      onChangeText={(m) => setDate({ month: m })}
+                      onChangeText={(m) => setMonth(m)}
                       maxLength={2}
                       keyboardType={"number-pad"}
                     />
                     <DobInput
                       placeholder={dob.year}
-                      onChangeText={(y) => setDate({ year: y })}
+                      onChangeText={(y) => setYear(y)}
                       maxLength={4}
                       keyboardType={"number-pad"}
                     />
@@ -80,7 +94,7 @@ export const PersonnalInfoScreen = ({ navigation }) => {
                 </DobView>
               </RightBlockView>
             </PersonnalInfoContainer>
-            <PersonnalInfoButton>
+            <PersonnalInfoButton onPress={handleUsersDataModify}>
               <TextButton style={{ fontSize: 22 }}>Enregistrer</TextButton>
             </PersonnalInfoButton>
           </SafeArea>

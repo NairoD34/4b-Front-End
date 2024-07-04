@@ -1,4 +1,11 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
+/**
+ * Authenticates a user with the provided email and password.
+ * @param {string} email - The user's email.
+ * @param {string} password - The user's password.
+ * @returns {Promise<Object>} - The response from the server.
+ */
 export const getLogin = async (email, password) => {
   const myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
@@ -17,34 +24,18 @@ export const getLogin = async (email, password) => {
 
   const request = await fetch("https://app.4brn.com/auth", requestOptions);
   const response = await request.json();
-  console.log(response);
+  console.log("cookie", request.cookie);
+  if (response.error === "Email and password must be provided") {
+    return { error: "Veuillez saisir votre email et votre mot de passe" };
+  }
   return response;
-
-  /* const myHeaders = new Headers();
-  myHeaders.append("Content-Type", "application/json");
-
-  const formdata = {
-    email: email,
-    password: password,
-  };
-
-  const requestOptions = {
-    method: "POST",
-    headers: myHeaders,
-    body: JSON.stringify(formdata),
-    redirect: "follow",
-  };
-
-  await fetch("https://app.4brn.com/auth", requestOptions)
-    .then((response) => response.text())
-    .then((result) => {
-      console.log(result);
-      return result;
-    })
-    .catch((error) => console.error(error));
-    */
 };
 
+/**
+ * Verifies a user with the provided code.
+ * @param {string} code - The verification code.
+ * @returns {Promise<Object>} - The response from the server.
+ */
 export const getVerify = async (code) => {
   const URL = "https://app.4brn.com/verify/code";
   const request = await fetch(URL, {
@@ -61,31 +52,16 @@ export const getVerify = async (code) => {
   const response = await request.json();
   return response;
 };
-//after receiving data lets fetch data from the response and store the token
-// here is an exemple of what you receive
-/*{
-    "@context": "/api/context/User",
-    "@id": "/api/users/14",
-    "@type": "User",
-    "id": 14,
-    "email": "role@user.com",
-    "dob": "2024-04-02T00:00:00+00:00",
-    "lastname": "role@user.com",
-    "firstname": "role@user.com",
-    "cycles": [],
-    "userProgressLogs": [],
-    "verified": true,
-    "validTokenStrings": [
-        "4bt_38cb99735f4a6dc6050eccfbdb63c337527cf6362cc38ab8a50af6a4d9e911ff"
-    ]
-}
-*/
 
-//First when the app is open lets check if the stay connected flag exist n the async  if it is then check for a token in the AsyncStorage if you find it then go to the HomepageNavigator now if it is not found go to the login page
-//if the button is not active show login page
-//When login in fetch/login fetch the user token on the response and save it to asyncStorage
-//after login in if the stay connected button is selected then save some flag on the async to keep the token
-
+/**
+ * Registers a new user with the provided details.
+ * @param {string} email - The user's email.
+ * @param {string} password - The user's password.
+ * @param {string} firstname - The user's first name.
+ * @param {string} lastname - The user's last name.
+ * @param {string} dob - The user's date of birth.
+ * @returns {Promise<Object>} - The response from the server.
+ */
 export const getRegister = async (
   email,
   password,
@@ -93,14 +69,22 @@ export const getRegister = async (
   lastname,
   dob,
 ) => {
+  // Format first and last names
+  const fletter = firstname.slice(0, 1).toUpperCase();
+  const ffollow = firstname.slice(1).toLowerCase();
+  const fname = `${fletter}${ffollow}`;
+  const lletter = lastname.slice(0, 1).toUpperCase();
+  const lfollow = lastname.slice(1).toLowerCase();
+  const lname = `${lletter}${lfollow}`;
+
   const myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
 
   const urlencoded = new URLSearchParams();
   urlencoded.append("email", email);
   urlencoded.append("password", password);
-  urlencoded.append("firstname", firstname);
-  urlencoded.append("lastname", lastname);
+  urlencoded.append("firstname", fname);
+  urlencoded.append("lastname", lname);
   urlencoded.append("dob", dob);
 
   const requestOptions = {
@@ -109,6 +93,8 @@ export const getRegister = async (
     body: urlencoded.toString(), // Ensure this is sent as a string
     redirect: "follow",
   };
+
+  // Validate inputs
   if (!email) {
     return { error: "Veuillez remplir votre adresse mail" };
   }
@@ -132,55 +118,74 @@ export const getRegister = async (
   }
   const request = await fetch("https://app.4brn.com/signup", requestOptions);
   const response = await request.json();
-  console.log("poet", response.errors[0][0]);
   if (response.errors === "There is already an account with this email") {
     return { error: "Un compte avec cette adresse mail existe déjà" };
   }
   return response;
-
-  /* const URL = "http://15.188.183.51/signup";
-  const body = JSON.stringify({
-    email: "peiro.dorian@gmail.com",
-    password: "Do123456@@",
-    firstname: "do",
-    lastname: "lastname",
-    dob: "1111-11-11",
-  });
-  try {
-    const request = await fetch(URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: body,
-    });
-    if (!request.ok) {
-      // Log the status and text if it's not OK
-      const text = await request.text();
-      console.log(body);
-      console.log(request.text());
-      console.error("Error response:", request.status, text);
-      throw new Error(`Request failed with status ${request.status}`);
-    }
-
-    // Parse the response as JSON
-    const response = await request.json();
-    console.log(response);
-    return response;
-  } catch (error) {
-    console.error("Fetch error:", error);
-    throw error;
-  }
-  */
 };
 
+/**
+ * Modifies user data with the provided details.
+ * @param {string} email - The user's email.
+ * @param {string} firstname - The user's first name.
+ * @param {string} lastname - The user's last name.
+ * @param {string} dob - The user's date of birth.
+ * @returns {Promise<Object>} - The response from the server.
+ */
+export const getUsersDataModify = async (email, firstname, lastname, dob) => {
+  const token = await AsyncStorage.getItem("token");
+  const myHeaders = new Headers();
+  myHeaders.append("Content-Type", "application/merge-patch+json");
+  myHeaders.append("Authorization", `Bearer ${token}`);
+  // Format first and last names if provided
+  if (firstname) {
+    const fletter = firstname.slice(0, 1).toUpperCase();
+    const ffollow = firstname.slice(1).toLowerCase();
+    const fname = `${fletter}${ffollow}`;
+    firstname = fname;
+  }
+  if (lastname) {
+    const lletter = lastname.slice(0, 1).toUpperCase();
+    const lfollow = lastname.slice(1).toLowerCase();
+    const lname = `${lletter}${lfollow}`;
+    lastname = lname;
+  }
+
+  let body = {};
+  email && (body.email = email);
+  firstname && (body.firstname = firstname);
+  lastname && (body.lastname = lastname);
+  dob && (body.dob = dob);
+  const requestOptions = {
+    method: "PATCH",
+    headers: myHeaders,
+    body: JSON.stringify(body),
+  };
+  const id = await AsyncStorage.getItem("user_id");
+  const URL = `https://app.4brn.com/api/users/${id}`;
+  const request = await fetch(URL, requestOptions);
+  const response = await request.json();
+  if (response.errors === "There is already an account with this email") {
+    return { error: "Un compte avec cette adresse mail existe déjà" };
+  }
+  return response;
+};
+
+/**
+ * Saves data to AsyncStorage with the specified key.
+ * @param {string} key - The key to store the data under.
+ * @param {string} data - The data to store.
+ */
 const saveAsyncData = async (key, data) => {
   console.log("save", data);
 
   await AsyncStorage.setItem(key, data);
 };
 
-let logout = async () => {
+/**
+ * Logs out the user by removing their data from AsyncStorage.
+ */
+export const logout = async () => {
   await AsyncStorage.removeItem("token");
   await AsyncStorage.removeItem("user_id");
   await AsyncStorage.removeItem("user_firstname");
@@ -189,6 +194,9 @@ let logout = async () => {
   await AsyncStorage.removeItem("user_email");
 };
 
+/**
+ * Service for account-related operations.
+ */
 export const accountService = {
   saveAsyncData,
   logout,

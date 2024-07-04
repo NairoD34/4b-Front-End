@@ -14,6 +14,7 @@ export const CycleContextProvider = ({ children }) => {
   const [isLoading2, setIsLoading2] = useState(false);
   const [error, setError] = useState(null);
   const [progress, setProgress] = useState(0);
+  const [isFinished, setIsFinished] = useState(false);
   console.log("isloading2", isLoading2);
   useEffect(() => {
     cycleContentProgress(progress);
@@ -21,9 +22,11 @@ export const CycleContextProvider = ({ children }) => {
   const retrieveCycle = async () => {
     setIsLoading2(true);
     const response = await getCycle();
+    console.log("pouet", response);
     if (response === null) {
       setIsLoading2(false);
       setCycleContent(null);
+      setIsFinished(true);
     }
     if (response.error) {
       setIsLoading2(false);
@@ -60,6 +63,8 @@ export const CycleContextProvider = ({ children }) => {
         retrieveCycle,
         setProgress,
         progress,
+        isFinished,
+        setIsFinished,
       }}
     >
       {children}

@@ -1,20 +1,21 @@
 import React, { useEffect } from "react";
 import { ResizeMode, Video } from "expo-av";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { Button } from "react-native-paper";
 
 import { CycleContext } from "../../../service/cycle/cycle.context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { BackButton, PlayButton } from "./video.style";
+import VideoPlayer from "expo-video-player";
+import { HomepageBackground } from "../../homepage/components/homepage.style";
 
-export const VideoComponent = ({ content }) => {
-  const { cycleContent, setProgress, retrieveCycle, progress } =
+export const VideoComponent = ({ navigation }) => {
+  const { cycleContent, setProgress, retrieveCycle, isFinished } =
     React.useContext(CycleContext);
 
   const [fullscreen, setFullscreen] = React.useState(false);
 
   const [status, setStatus] = React.useState({});
-  console.log("URL", cycleContent);
 
   const _onPlaybackStatusUpdate = async (playbackStatus) => {
     let hasStarted = false;
@@ -53,48 +54,84 @@ export const VideoComponent = ({ content }) => {
     const playbackObject = component;
     component.setOnPlaybackStatusUpdate(this._onPlaybackStatusUpdate);
   };
-
+  useEffect(() => {
+    if (isFinished) {
+      navigation.navigate("Homepage", {
+        message:
+          "Vous avez terminez le cycle 4b ! Bravo à vous et à très vite pour de nouvelles aventures!",
+      });
+    }
+  }, [isFinished]);
   return (
-    <>
-      <Video
-        ref={video} // Store reference
-        source={{
-          uri: `https://4bmedia.s3.eu-west-3.amazonaws.com/cycle_video/${cycleContent}`,
+    <HomepageBackground>
+      <VideoPlayer
+        videoProps={{
+          shouldPlay: true,
+          resizeMode: ResizeMode.CONTAIN,
+          source: {
+            uri: `https://4bmedia.s3.eu-west-3.amazonaws.com/cycle_video/${cycleContent}`,
+          },
+          ref: video,
+          nativeControls: false,
         }}
-        resizeMode={ResizeMode.CONTAIN}
-        onFullscreenUpdate={() => setStatus(!fullscreen)}
-        style={styles.video}
-        onPlaybackStatusUpdate={_onPlaybackStatusUpdate}
-      />
-      <PlayButton
-        icon={status.isPlaying ? "pause" : "play"}
-        mode="contained"
-        onPress={() => {
-          return _onPlaybackStatusUpdate.isPlaying
-            ? video.current.pauseAsync()
-            : video.current.playAsync();
+        playbackCallback={async (playbackStatus) => {
+          let hasStarted = false;
+          let isPlaying = false;
+          if (cycleContent === undefined) {
+            navigation.navigate("Homepage");
+          }
+          if (playbackStatus.isLoaded) {
+            if (playbackStatus.error) {
+              console.log(
+                `Encountered a fatal error during playback: ${playbackStatus.error}`,
+              );
+              // Send Expo team the error on Slack or the forums so we can help you debug!
+            }
+          } else {
+            // Update your UI for the loaded state
+
+            if (playbackStatus.isPlaying) {
+              isPlaying = true;
+            } else {
+              // Update your UI for the paused state
+            }
+
+            if (playbackStatus.isBuffering) {
+              // Update your UI for the buffering state
+            }
+          }
+          if (hasStarted === false) {
+            if (playbackStatus.positionMillis > 0) {
+              hasStarted = true;
+              setProgress(0);
+            }
+          }
+          if (playbackStatus.didJustFinish && !playbackStatus.isLooping) {
+            // The player has just finished playing and will stop. Maybe you want to play something else?
+            setProgress(1);
+          }
         }}
+        fullscreen={{
+          visible: false,
+        }}
+        slider={{
+          visible: true,
+        }}
+        icon={{
+          play: <Text style={{ fontSize: 24, color: "#4649E3" }}>PLAY</Text>,
+          pause: <Text style={{ fontSize: 24, color: "#4649E3" }}>PAUSE</Text>,
+        }}
+        timeVisible={false}
+        header={
+          <BackButton onPress={() => navigation.navigate("Homepage")}>
+            {"<"}
+            Retour
+          </BackButton>
+        }
       />
-    </>
+    </HomepageBackground>
   );
 };
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  buttons: {
-    position: "absolute",
-    bottom: 10,
-    right: 10,
-  },
-  video: {
-    alignSelf: "center",
-    width: 600,
-    height: 350,
-  },
-});
 
 // if you fetch the user you can read the userProgressLogs, if it's empty start the first cycle at the first cc if it's not you start the next one from the user logs.
 //To create a listener in the video use onPlaybackStatusUpdate

@@ -120,6 +120,7 @@ export const RegisterScreen = ({ navigation }) => {
           onPress={() => {
             if (isActive) {
               handleRegister();
+              navigation.navigate("Verify");
             } else {
               alert("Veuillez accepter les conditions générales d'utilisation");
             }

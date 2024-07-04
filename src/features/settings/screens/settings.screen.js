@@ -56,21 +56,6 @@ export const SettingsScreen = ({ navigation }) => {
           <SafeArea style={{ alignItems: "center", justifyContent: "center" }}>
             <View style={{ height: 60 }} />
             <CardView>
-              <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
-                <SettingsCard>
-                  <Card.Content>
-                    <SvgXml xml={pen} />
-                    <View style={{ height: 20 }} />
-                    <SettingsCardTitle variant="label">
-                      Mon Profil
-                    </SettingsCardTitle>
-                    <View style={{ height: 10 }} />
-                    <SettingsCardText variant="label">
-                      {firstname} {lastname}
-                    </SettingsCardText>
-                  </Card.Content>
-                </SettingsCard>
-              </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => navigation.navigate("PersonnalInfo")}
               >
@@ -111,3 +96,20 @@ export const SettingsScreen = ({ navigation }) => {
     </View>
   );
 };
+/* Profile card
+<TouchableOpacity onPress={() => navigation.navigate("Profile")}>
+                <SettingsCard>
+                  <Card.Content>
+                    <SvgXml xml={pen} />
+                    <View style={{ height: 20 }} />
+                    <SettingsCardTitle variant="label">
+                      Mon Profil
+                    </SettingsCardTitle>
+                    <View style={{ height: 10 }} />
+                    <SettingsCardText variant="label">
+                      {firstname} {lastname}
+                    </SettingsCardText>
+                  </Card.Content>
+                </SettingsCard>
+              </TouchableOpacity>
+ */

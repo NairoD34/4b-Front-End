@@ -1,5 +1,8 @@
 import React from "react";
-import { createStackNavigator } from "@react-navigation/stack";
+import {
+  createStackNavigator,
+  TransitionPresets,
+} from "@react-navigation/stack";
 
 import { AccountScreen } from "../../features/account/screens/account.screen";
 import { LoginScreen } from "../../features/account/screens/login.screen";
@@ -10,7 +13,12 @@ import { VerifyScreen } from "../../features/account/screens/verify.screen";
 const Stack = createStackNavigator();
 
 export const AccountNavigator = () => (
-  <Stack.Navigator headerMode="none">
+  <Stack.Navigator
+    headerMode="none"
+    screenOptions={{
+      ...TransitionPresets.ModalSlideFromBottomIOS,
+    }}
+  >
     <Stack.Screen name="Main" component={AccountScreen} />
     <Stack.Screen name="Login" component={LoginScreen} />
     <Stack.Screen name="Register" component={RegisterScreen} />
