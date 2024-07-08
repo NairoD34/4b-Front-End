@@ -14,6 +14,7 @@ export const CycleContextProvider = ({ children }) => {
   const [isLoading2, setIsLoading2] = useState(false);
   const [error, setError] = useState(null);
   const [progress, setProgress] = useState(0);
+  const [hasStarted, setHasStarted] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
   console.log("isloading2", isLoading2);
   useEffect(() => {
@@ -65,6 +66,8 @@ export const CycleContextProvider = ({ children }) => {
         progress,
         isFinished,
         setIsFinished,
+        setHasStarted,
+        hasStarted,
       }}
     >
       {children}

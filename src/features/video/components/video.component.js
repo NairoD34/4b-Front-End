@@ -10,15 +10,21 @@ import VideoPlayer from "expo-video-player";
 import { HomepageBackground } from "../../homepage/components/homepage.style";
 
 export const VideoComponent = ({ navigation }) => {
-  const { cycleContent, setProgress, retrieveCycle, isFinished } =
-    React.useContext(CycleContext);
+  const {
+    cycleContent,
+    setProgress,
+    retrieveCycle,
+    isFinished,
+    hasStarted,
+    setHasStarted,
+  } = React.useContext(CycleContext);
 
   const [fullscreen, setFullscreen] = React.useState(false);
 
   const [status, setStatus] = React.useState({});
 
   const _onPlaybackStatusUpdate = async (playbackStatus) => {
-    let hasStarted = false;
+    let Started = false;
     if (playbackStatus.isLoaded) {
       if (playbackStatus.error) {
         console.log(
@@ -38,9 +44,9 @@ export const VideoComponent = ({ navigation }) => {
         // Update your UI for the buffering state
       }
     }
-    if (hasStarted === false) {
+    if (Started === false) {
       if (playbackStatus.positionMillis > 0) {
-        hasStarted = true;
+        Started = true;
         setProgress(0);
       }
     }
@@ -56,6 +62,7 @@ export const VideoComponent = ({ navigation }) => {
   };
   useEffect(() => {
     if (isFinished) {
+      setHasStarted(false);
       navigation.navigate("Homepage", {
         message:
           "Vous avez terminez le cycle 4b ! Bravo à vous et à très vite pour de nouvelles aventures!",

@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import {
   accountService,
   getLogin,
+  getNewPassword,
   getRegister,
   getUsersDataModify,
   getVerify,
@@ -25,6 +26,7 @@ export const AccountContextProvider = ({ children }) => {
   const [password, setPassword] = useState();
   const [isLoggedInPermanently, setIsLoggedInPermanently] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isRegister, setIsRegister] = useState(false);
   const [stayConnected, setStayConnected] = useState(false);
   const [token, setToken] = useState(null);
   const [day, setDay] = useState(null);
@@ -32,6 +34,7 @@ export const AccountContextProvider = ({ children }) => {
   const [year, setYear] = useState(null);
   const [firstname, setFirstname] = useState(null);
   const [lastname, setLastname] = useState(null);
+  const [send, setSend] = useState(false);
   const [dob, setDob] = useState({
     day: null,
     month: null,
@@ -52,7 +55,7 @@ export const AccountContextProvider = ({ children }) => {
       const lastname = await AsyncStorage.getItem("user_lastname");
       const DOB = await AsyncStorage.getItem("user_dob");
       const email = await AsyncStorage.getItem("user_email");
-      const isVerified = await AsyncStorage.getItem("verified");
+      const isVerified = await AsyncStorage.getItem("isVerified");
       if (firstname) {
         console.log("Firstname: " + firstname);
         setFirstname(firstname);
@@ -86,7 +89,7 @@ export const AccountContextProvider = ({ children }) => {
    */
   const handleLogin = async () => {
     const response = await getLogin(email, password);
-    console.log("res", response);
+    setIsLoading(true);
     if (response.error) {
       setIsLoading(false);
       setIsLoggedInPermanently(false);
@@ -119,6 +122,7 @@ export const AccountContextProvider = ({ children }) => {
       }
       if (response.verified === true) {
         setIsVerified(true);
+        accountService.saveAsyncData("isVerified", "true");
       }
     }
   };
@@ -145,17 +149,38 @@ export const AccountContextProvider = ({ children }) => {
         formattedDOB(),
       );
       console.log("rescontext", response);
-      if (!response.errors) {
+      if (!response.error) {
         setIsLoading(false);
-        const loginResponse = await handleLogin();
-        console.log("loginResponse", loginResponse);
+        const loginResponse = await getLogin(email, password);
+        accountService.saveAsyncData(
+          "user_id",
+          JSON.stringify(loginResponse.id),
+        );
+        accountService.saveAsyncData(
+          "token",
+          loginResponse.validTokenStrings[0],
+        );
+        setIsLoggedIn(true);
+        setIsLoading(false);
+        setToken(loginResponse.validTokenStrings[0]);
+        setError(null);
+        setFirstname(loginResponse.firstname);
+        setLastname(loginResponse.lastname);
+        setDob({
+          day: format(loginResponse.dob, "dd"),
+          month: format(loginResponse.dob, "MM"),
+          year: format(loginResponse.dob, "yyyy"),
+        });
+        return true;
       } else {
-        console.log("error", response.errors);
+        console.log("error", response.error);
+        setIsRegister(false);
         setIsLoading(false);
-        setError(response.errors);
+        setError(response.error);
         setTimeout(() => {
           setError(null);
         }, 5000);
+        return false;
       }
     } catch (err) {
       console.log(err);
@@ -178,7 +203,6 @@ export const AccountContextProvider = ({ children }) => {
     } else {
       setIsLoading(false);
       setIsVerified(true);
-      await asyncStorage.setItem("verified", "true");
     }
   };
 
@@ -233,6 +257,22 @@ export const AccountContextProvider = ({ children }) => {
     }
   };
 
+  const handleNewPassword = async () => {
+    setIsLoading(true);
+    const response = await getNewPassword(email);
+    console.log("NewPassword", response);
+    if (response.error) {
+      setIsLoading(false);
+      setError(response.error);
+      setTimeout(() => {
+        setError(null);
+      }, 5000);
+    } else {
+      setIsLoading(false);
+      setSend(true);
+      setEmail(null);
+    }
+  };
   /**
    * Logs out the user.
    */
@@ -286,6 +326,10 @@ export const AccountContextProvider = ({ children }) => {
         setModifyLastname,
         setModifyEmail,
         handleUsersDataModify,
+        handleNewPassword,
+        isRegister,
+        send,
+        setSend,
       }}
     >
       {children}

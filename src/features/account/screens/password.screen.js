@@ -1,5 +1,5 @@
-import React, { useState, useContext } from "react";
-import { View, TouchableOpacity } from "react-native";
+import React, { useState, useContext, useEffect } from "react";
+import { View, TouchableOpacity, Alert } from "react-native";
 import { Button } from "react-native-paper";
 
 import { AccountContext } from "../../../service/account/account.context";
@@ -15,13 +15,35 @@ import {
   LoginTitle,
   BackButton,
   LoginContainer,
+  TextError,
 } from "../components/account.style";
 import { LoadingScreen } from "../../loading/screens/loading.screen";
 
 export const PasswordScreen = ({ navigation }) => {
   const [isActive, setIsActive] = useState(false);
-  const { setEmail, setPassword, error, handleLogin, isLoading } =
+  const { setEmail, error, handleNewPassword, isLoading, send, setSend } =
     useContext(AccountContext);
+  useEffect(() => {
+    if (send) {
+      ValidationButtonAlert();
+      setSend(false);
+    }
+  }, [setSend, send]);
+  const ValidationButtonAlert = () =>
+    Alert.alert(
+      "Email envoyé",
+      "Un mail de réinitialisation a été envoyé sur l'adresse transmise, vérifier vos mails et vos spams",
+      [
+        {
+          text: "Connexion",
+          onPress: () => {
+            navigation.navigate("Login");
+          },
+        },
+        { text: "Annuler", onPress: () => console.log("cancel Pressed") },
+      ],
+    );
+
   return (
     <View style={{ flex: 1 }}>
       {isLoading ? (
@@ -35,6 +57,8 @@ export const PasswordScreen = ({ navigation }) => {
           <SafeArea style={{ alignItems: "center" }}>
             <View style={{ width: 1, marginTop: 20 }} />
             <LoginTitle variant="title">Mot de passe oublié ?</LoginTitle>
+            {error ? <TextError>{error}</TextError> : <View />}
+
             <LoginContainer>
               <AccountInput
                 placeholder="E-mail"
@@ -48,7 +72,7 @@ export const PasswordScreen = ({ navigation }) => {
                 réinitialiser votre mot de passe.
               </SmallText>
             </TouchableOpacity>
-            <LoginButton onPress={handleLogin}>
+            <LoginButton onPress={handleNewPassword}>
               <TextButton style={{ fontSize: 22 }}>Réinitialiser</TextButton>
             </LoginButton>
           </SafeArea>

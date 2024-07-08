@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 
 import { AccountContext } from "../../../service/account/account.context";
 import { SafeArea } from "../../../components/utility/safe-area.component";
@@ -40,7 +40,7 @@ export const VerifyScreen = ({ navigation }) => {
             Retour
           </BackButton>
           <SafeArea style={{ alignItems: "center" }}>
-            <LoginTitle variant="title">Connexion</LoginTitle>
+            <LoginTitle variant="title">Vérification</LoginTitle>
             <LoginContainer>
               {error ? <TextError>{error}</TextError> : <View />}
               <AccountInput
@@ -48,6 +48,9 @@ export const VerifyScreen = ({ navigation }) => {
                 onChangeText={(text) => setVerifyCode(text)}
               />
             </LoginContainer>
+            <TouchableOpacity>
+              <SmallText>Renvoyer un code à mon adresse mail</SmallText>
+            </TouchableOpacity>
             <LoginButton onPress={() => handleVerify()}>
               <TextButton>Valider</TextButton>
             </LoginButton>

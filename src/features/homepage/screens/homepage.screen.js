@@ -7,27 +7,33 @@ import {
   HomepageButton,
   TextButton,
 } from "../components/homepage.style";
-import { TouchableOpacity, View } from "react-native";
+import { Alert, TouchableOpacity, View } from "react-native";
 import { CycleContext } from "../../../service/cycle/cycle.context";
 import { LoadingScreen } from "../../loading/screens/loading.screen";
 import { AccountContext } from "../../../service/account/account.context";
 
 export const HomepageScreen = ({ route, navigation }) => {
-  const { retrieveCycle, isFinished, setIsFinished } =
-    React.useContext(CycleContext);
+  const {
+    retrieveCycle,
+    isFinished,
+    setIsFinished,
+    setHasStarted,
+    hasStarted,
+  } = React.useContext(CycleContext);
   const { isLoading } = React.useContext(AccountContext);
   const confettiRef = useRef(null);
   React.useEffect(() => {
     if (route.params?.message) {
       // Post updated, do something with `route.params.post`
       // For example, send the post to the server
-      alert(route.params.message);
+      CongratsButtonAlert();
       TriggerConfetti();
       route.params.message = null;
     }
   }, [route.params?.message]);
   const TriggerConfetti = () => {
     confettiRef.current?.play(0);
+
     return (
       <LottieView
         ref={confettiRef}
@@ -47,6 +53,10 @@ export const HomepageScreen = ({ route, navigation }) => {
       />
     );
   };
+  const CongratsButtonAlert = () =>
+    Alert.alert("Félicitations", route.params.message, [
+      { text: "OK", onPress: () => console.log("OK Pressed") },
+    ]);
   return (
     <View style={{ flex: 1 }}>
       {isLoading ? (
@@ -66,10 +76,15 @@ export const HomepageScreen = ({ route, navigation }) => {
             onPress={async () => {
               navigation.navigate("VideoPlayer");
               await retrieveCycle();
+              setHasStarted(true);
             }}
           >
             <HomepageButton mode="contained">
-              <TextButton>COMMENCER</TextButton>
+              {hasStarted ? (
+                <TextButton>CONTINUER</TextButton>
+              ) : (
+                <TextButton>COMMENCER</TextButton>
+              )}
             </HomepageButton>
           </TouchableOpacity>
         </HomepageBackground>

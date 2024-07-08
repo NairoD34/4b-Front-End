@@ -38,6 +38,9 @@ export const getLogin = async (email, password) => {
  */
 export const getVerify = async (code) => {
   const URL = "https://app.4brn.com/verify/code";
+  const formdata = {
+    code: code,
+  };
   const request = await fetch(URL, {
     method: "POST",
     headers: {
@@ -45,7 +48,7 @@ export const getVerify = async (code) => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      code: code,
+      code: formdata,
     }),
   });
 
@@ -69,6 +72,28 @@ export const getRegister = async (
   lastname,
   dob,
 ) => {
+  // Validate inputs
+  if (!email) {
+    return { error: "Veuillez remplir votre adresse mail" };
+  }
+  if (!password) {
+    return { error: "Veuillez remplir votre mot de passe" };
+  }
+  if (password.length < 6) {
+    return { error: "Votre mot de passe doit contenir au moins 6 caractères" };
+  }
+  if (!firstname) {
+    return { error: "Veuillez remplir votre prénom" };
+  }
+  if (!lastname) {
+    return { error: "Veuillez remplir votre nom" };
+  }
+  if (dob === null) {
+    return { error: "Veuillez remplir votre date de naissance" };
+  }
+  if (dob === false) {
+    return { error: "Veuillez donner une date de naissance correcte" };
+  }
   // Format first and last names
   const fletter = firstname.slice(0, 1).toUpperCase();
   const ffollow = firstname.slice(1).toLowerCase();
@@ -93,29 +118,6 @@ export const getRegister = async (
     body: urlencoded.toString(), // Ensure this is sent as a string
     redirect: "follow",
   };
-
-  // Validate inputs
-  if (!email) {
-    return { error: "Veuillez remplir votre adresse mail" };
-  }
-  if (!password) {
-    return { error: "Veuillez remplir votre mot de passe" };
-  }
-  if (password.length < 6) {
-    return { error: "Votre mot de passe doit contenir au moins 6 caractères" };
-  }
-  if (!firstname) {
-    return { error: "Veuillez remplir votre prénom" };
-  }
-  if (!lastname) {
-    return { error: "Veuillez remplir votre nom" };
-  }
-  if (dob === null) {
-    return { error: "Veuillez remplir votre date de naissance" };
-  }
-  if (dob === false) {
-    return { error: "Veuillez donner une date de naissance correcte" };
-  }
   const request = await fetch("https://app.4brn.com/signup", requestOptions);
   const response = await request.json();
   if (response.errors === "There is already an account with this email") {
@@ -171,6 +173,28 @@ export const getUsersDataModify = async (email, firstname, lastname, dob) => {
   return response;
 };
 
+export const getNewPassword = async (email) => {
+  const URL = "https://app.4brn.com/reset-password/request";
+  if (!email) {
+    return { error: "Veuillez saisir votre adresse mail" };
+  }
+  const urlencoded = new URLSearchParams();
+  urlencoded.append("email", email);
+  const request = await fetch(URL, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      "App-Key": "e524291c40656cc5ab6ee082c773b68f",
+    },
+    body: urlencoded.toString(),
+  });
+
+  const response = await request.json();
+  console.log("newPWD", response);
+  return response;
+};
+
 /**
  * Saves data to AsyncStorage with the specified key.
  * @param {string} key - The key to store the data under.
@@ -192,6 +216,7 @@ export const logout = async () => {
   await AsyncStorage.removeItem("user_lastname");
   await AsyncStorage.removeItem("user_dob");
   await AsyncStorage.removeItem("user_email");
+  await AsyncStorage.removeItem("isVerified");
 };
 
 /**

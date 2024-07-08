@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { View, Image, StyleSheet, TextInput } from "react-native";
+import { View, Alert } from "react-native";
 import { Button } from "react-native-paper";
 
 import { SafeArea } from "../../../components/utility/safe-area.component";
@@ -40,7 +40,26 @@ export const RegisterScreen = ({ navigation }) => {
     error,
     isVerified,
     isLoading,
+    isRegister,
   } = useContext(AccountContext);
+  const isActiveButtonAlert = () =>
+    Alert.alert(
+      "Attention",
+      "Veuillez accepter les conditions générales d'utilisation",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+        },
+        {
+          text: "Valider les CGU",
+          onPress: () => setIsActive(true),
+        },
+      ],
+    );
+  if (isRegister) {
+    navigation.navigate("Verify");
+  }
   return (
     <RegisterBackground>
       <BackButton onPress={() => navigation.goBack()}>
@@ -119,10 +138,12 @@ export const RegisterScreen = ({ navigation }) => {
         <RegisterButton
           onPress={() => {
             if (isActive) {
-              handleRegister();
-              navigation.navigate("Verify");
+              const response = handleRegister();
+              if (response === true) {
+                navigation.navigate("Verify");
+              }
             } else {
-              alert("Veuillez accepter les conditions générales d'utilisation");
+              isActiveButtonAlert();
             }
           }}
         >
