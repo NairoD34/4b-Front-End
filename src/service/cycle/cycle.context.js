@@ -23,7 +23,6 @@ export const CycleContextProvider = ({ children }) => {
   const retrieveCycle = async () => {
     setIsLoading2(true);
     const response = await getCycle();
-    console.log("pouet", response);
     if (response === null) {
       setIsLoading2(false);
       setCycleContent(null);

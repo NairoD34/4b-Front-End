@@ -136,9 +136,9 @@ export const RegisterScreen = ({ navigation }) => {
           </ConditionText>
         </ValidateView>
         <RegisterButton
-          onPress={() => {
+          onPress={async () => {
             if (isActive) {
-              const response = handleRegister();
+              const response = await handleRegister();
               if (response === true) {
                 navigation.navigate("Verify");
               }

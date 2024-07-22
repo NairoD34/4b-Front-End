@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View, Alert } from "react-native";
 
 import { AccountContext } from "../../../service/account/account.context";
 import { SafeArea } from "../../../components/utility/safe-area.component";
@@ -27,6 +27,7 @@ export const VerifyScreen = ({ navigation }) => {
     setVerifyCode,
     stayConnected,
     isLoading,
+    handleNewCode,
   } = useContext(AccountContext);
 
   return (
@@ -48,10 +49,14 @@ export const VerifyScreen = ({ navigation }) => {
                 onChangeText={(text) => setVerifyCode(text)}
               />
             </LoginContainer>
-            <TouchableOpacity>
+            <TouchableOpacity
+              onPress={async () => {
+                await handleNewCode();
+              }}
+            >
               <SmallText>Renvoyer un code à mon adresse mail</SmallText>
             </TouchableOpacity>
-            <LoginButton onPress={() => handleVerify()}>
+            <LoginButton onPress={async () => await handleVerify()}>
               <TextButton>Valider</TextButton>
             </LoginButton>
           </SafeArea>

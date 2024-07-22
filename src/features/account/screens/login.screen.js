@@ -74,8 +74,11 @@ export const LoginScreen = ({ navigation }) => {
           <SmallText>Mot de passe oublié ?</SmallText>
         </TouchableOpacity>
         <LoginButton
-          onPress={() => {
-            handleLogin();
+          onPress={async () => {
+            await handleLogin();
+            if (!isVerified && !error) {
+              navigation.navigate("Verify");
+            }
           }}
         >
           <TextButton style={{ fontSize: 22 }}>Valider</TextButton>

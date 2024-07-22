@@ -15,10 +15,10 @@ const HomepageStack = createStackNavigator();
 export const HomepageNavigator = () => {
   return (
     <HomepageStack.Navigator
-      headerMode="none"
       screenOptions={{
         ...TransitionPresets.ModalPresentationIOS,
         animation: "fade",
+        headerShown: false,
       }}
     >
       <HomepageStack.Screen name="Homepage" component={HomepageScreen} />

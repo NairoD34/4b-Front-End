@@ -24,10 +24,10 @@ export const getLogin = async (email, password) => {
 
   const request = await fetch("https://app.4brn.com/auth", requestOptions);
   const response = await request.json();
-  console.log("cookie", request.cookie);
   if (response.error === "Email and password must be provided") {
     return { error: "Veuillez saisir votre email et votre mot de passe" };
   }
+  console.log("login", response);
   return response;
 };
 
@@ -38,21 +38,21 @@ export const getLogin = async (email, password) => {
  */
 export const getVerify = async (code) => {
   const URL = "https://app.4brn.com/verify/code";
-  const formdata = {
-    code: code,
-  };
+  const token = await AsyncStorage.getItem("token"); // Retrieve the token from AsyncStorage
+  const formdata = new FormData();
+  formdata.append("code", code);
   const request = await fetch(URL, {
     method: "POST",
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({
-      code: formdata,
-    }),
+    body: formdata,
   });
 
   const response = await request.json();
+  console.log("verify", response);
   return response;
 };
 
@@ -195,6 +195,21 @@ export const getNewPassword = async (email) => {
   return response;
 };
 
+export const getNewVerificationCode = async () => {
+  const URL = "https://app.4brn.com/send-code";
+  const token = await AsyncStorage.getItem("token");
+  const request = await fetch(URL, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  const response = await request.json();
+  console.log("newVerificationCode", response);
+  return response;
+};
 /**
  * Saves data to AsyncStorage with the specified key.
  * @param {string} key - The key to store the data under.

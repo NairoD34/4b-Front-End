@@ -4,6 +4,7 @@ import {
   accountService,
   getLogin,
   getNewPassword,
+  getNewVerificationCode,
   getRegister,
   getUsersDataModify,
   getVerify,
@@ -123,6 +124,8 @@ export const AccountContextProvider = ({ children }) => {
       if (response.verified === true) {
         setIsVerified(true);
         accountService.saveAsyncData("isVerified", "true");
+      } else {
+        setIsVerified(false);
       }
     }
   };
@@ -152,6 +155,7 @@ export const AccountContextProvider = ({ children }) => {
       if (!response.error) {
         setIsLoading(false);
         const loginResponse = await getLogin(email, password);
+        console.log("loginRes", loginResponse);
         accountService.saveAsyncData(
           "user_id",
           JSON.stringify(loginResponse.id),
@@ -193,7 +197,6 @@ export const AccountContextProvider = ({ children }) => {
   const handleVerify = async () => {
     setIsLoading(true);
     const response = await getVerify(verifyCode);
-    console.log("verify", response);
     if (response.error) {
       setIsLoading(false);
       setError(response.error);
@@ -260,7 +263,6 @@ export const AccountContextProvider = ({ children }) => {
   const handleNewPassword = async () => {
     setIsLoading(true);
     const response = await getNewPassword(email);
-    console.log("NewPassword", response);
     if (response.error) {
       setIsLoading(false);
       setError(response.error);
@@ -271,6 +273,22 @@ export const AccountContextProvider = ({ children }) => {
       setIsLoading(false);
       setSend(true);
       setEmail(null);
+    }
+  };
+  const handleNewCode = async () => {
+    setIsLoading(true);
+    const response = await getNewVerificationCode();
+    console.log("newcode", response);
+    if (response.error) {
+      setIsLoading(false);
+      setError(response.error);
+      setTimeout(() => {
+        setError(null);
+      }, 5000);
+      return false;
+    } else {
+      setIsLoading(false);
+      return true;
     }
   };
   /**
@@ -290,6 +308,7 @@ export const AccountContextProvider = ({ children }) => {
       month: null,
       year: null,
     });
+    setIsVerified(false);
   };
 
   return (
@@ -330,6 +349,7 @@ export const AccountContextProvider = ({ children }) => {
         isRegister,
         send,
         setSend,
+        handleNewCode,
       }}
     >
       {children}

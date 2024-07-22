@@ -14,9 +14,9 @@ const Stack = createStackNavigator();
 
 export const AccountNavigator = () => (
   <Stack.Navigator
-    headerMode="none"
     screenOptions={{
       ...TransitionPresets.ModalSlideFromBottomIOS,
+      headerShown: false,
     }}
   >
     <Stack.Screen name="Main" component={AccountScreen} />
