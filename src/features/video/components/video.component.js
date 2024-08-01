@@ -60,12 +60,14 @@ export const VideoComponent = ({ navigation }) => {
     const playbackObject = component;
     component.setOnPlaybackStatusUpdate(this._onPlaybackStatusUpdate);
   };
+  let done = false;
   useEffect(() => {
     if (isFinished) {
       setHasStarted(false);
       navigation.navigate("Homepage", {
         message:
           "Vous avez terminez le cycle 4b ! Bravo à vous et à très vite pour de nouvelles aventures!",
+        cycle: done,
       });
     }
   }, [isFinished]);
@@ -116,6 +118,7 @@ export const VideoComponent = ({ navigation }) => {
           if (playbackStatus.didJustFinish && !playbackStatus.isLooping) {
             // The player has just finished playing and will stop. Maybe you want to play something else?
             setProgress(1);
+            done = true;
           }
         }}
         fullscreen={{

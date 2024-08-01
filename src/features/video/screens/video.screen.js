@@ -23,10 +23,7 @@ export const VideoPlayerScreen = ({ navigation }) => {
   const [isPlaying, setIsPlaying] = React.useState(true);
 
   const video = React.useRef(null);
-  const _handleVideoRef = (component) => {
-    const playbackObject = component;
-    component.setOnPlaybackStatusUpdate(this._onPlaybackStatusUpdate);
-  };
+
   console.log("URL", cycleContent);
 
   return (
@@ -39,20 +36,3 @@ export const VideoPlayerScreen = ({ navigation }) => {
     </View>
   );
 };
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  buttons: {
-    position: "absolute",
-    bottom: 10,
-    right: 10,
-  },
-  video: {
-    flex: 1,
-    alignSelf: "center",
-    width: 700,
-  },
-});

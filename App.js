@@ -7,6 +7,7 @@ import { theme } from "./src/infrastructure/theme/index";
 import { Navigation } from "./src/infrastructure/navigation";
 import { CycleContextProvider } from "./src/service/cycle/cycle.context";
 import { AccountContextProvider } from "./src/service/account/account.context";
+import { useEffect } from "react";
 
 export default function App() {
   return (

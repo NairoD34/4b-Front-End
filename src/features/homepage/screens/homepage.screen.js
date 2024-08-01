@@ -2,6 +2,8 @@ import React, { useRef } from "react";
 import { Button } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome";
 import LottieView from "lottie-react-native";
+import Survicate from "@survicate/react-native-survicate";
+
 import {
   HomepageBackground,
   HomepageButton,
@@ -55,7 +57,14 @@ export const HomepageScreen = ({ route, navigation }) => {
   };
   const CongratsButtonAlert = () =>
     Alert.alert("Félicitations", route.params.message, [
-      { text: "OK", onPress: () => console.log("OK Pressed") },
+      {
+        text: "OK",
+        onPress: () => {
+          if (route.params.done === true) {
+            Survicate.invokeEvent("CycleEnd");
+          }
+        },
+      },
     ]);
   return (
     <View style={{ flex: 1 }}>
