@@ -16,6 +16,7 @@ export const CycleContextProvider = ({ children }) => {
   const [progress, setProgress] = useState(0);
   const [hasStarted, setHasStarted] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
+  const [cycle, setCycle] = useState(null);
   console.log("isloading2", isLoading2);
   useEffect(() => {
     cycleContentProgress(progress);
@@ -35,6 +36,7 @@ export const CycleContextProvider = ({ children }) => {
       console.log("Contextresponse");
       setIsLoading2(false);
       setCycleContent(response.content.media.url);
+      setCycle(response.cycle_id);
     }
   };
   let l;
@@ -67,6 +69,7 @@ export const CycleContextProvider = ({ children }) => {
         setIsFinished,
         setHasStarted,
         hasStarted,
+        cycle,
       }}
     >
       {children}

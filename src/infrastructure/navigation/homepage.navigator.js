@@ -9,6 +9,7 @@ import { VideoPlayerScreen } from "../../features/video/screens/video.screen";
 import { ProfileScreen } from "../../features/profile/screens/profile.screen";
 import { SettingsScreen } from "../../features/settings/screens/settings.screen";
 import { PersonnalInfoScreen } from "../../features/personnal-info/screens/personnal-info.screen";
+import { FeedbackScreen } from "../../features/feedback/screens/feedback.screen";
 
 const HomepageStack = createStackNavigator();
 
@@ -26,6 +27,7 @@ export const HomepageNavigator = () => {
       <HomepageStack.Screen name="VideoPlayer" component={VideoPlayerScreen} />
       <HomepageStack.Screen name="Settings" component={SettingsScreen} />
       <HomepageStack.Screen name="Profile" component={ProfileScreen} />
+      <HomepageStack.Screen name="Feedback" component={FeedbackScreen} />
       <HomepageStack.Screen
         name="PersonnalInfo"
         component={PersonnalInfoScreen}

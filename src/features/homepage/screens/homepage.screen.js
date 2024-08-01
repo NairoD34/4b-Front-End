@@ -2,7 +2,6 @@ import React, { useRef } from "react";
 import { Button } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome";
 import LottieView from "lottie-react-native";
-import Survicate from "@survicate/react-native-survicate";
 
 import {
   HomepageBackground,
@@ -59,11 +58,6 @@ export const HomepageScreen = ({ route, navigation }) => {
     Alert.alert("Félicitations", route.params.message, [
       {
         text: "OK",
-        onPress: () => {
-          if (route.params.done === true) {
-            Survicate.invokeEvent("CycleEnd");
-          }
-        },
       },
     ]);
   return (
@@ -81,6 +75,16 @@ export const HomepageScreen = ({ route, navigation }) => {
             color="white"
             onPress={() => navigation.navigate("Settings")}
           ></Icon>
+          <TouchableOpacity
+            style={{
+              position: "absolute",
+              top: 25,
+              right: 25,
+              height: 50,
+              width: 50,
+            }}
+            onPress={() => navigation.navigate("Feedback")}
+          ></TouchableOpacity>
           <TouchableOpacity
             onPress={async () => {
               navigation.navigate("VideoPlayer");
