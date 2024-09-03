@@ -18,17 +18,74 @@ import { TouchableOpacity, View } from "react-native";
 import greyStar from "../../../../assets/grey_star";
 import star from "../../../../assets/star";
 import { BackButton } from "../../account/components/account.style";
+import { CycleContext } from "../../../service/cycle/cycle.context";
+import { AccountContext } from "../../../service/account/account.context";
+import LottieView from "lottie-react-native";
 
-export const FeedbackScreen = ({ navigation }) => {
+export const FeedbackScreen = ({ route, navigation }) => {
   const {
     rating,
-    setRating,
     setFeedbackMessage,
     handleChangesFeedback,
     handleSubmitFeedback,
+    question,
+    getFeedbackQuestion,
   } = React.useContext(FeedbackContext);
-  useEffect(() => {}, [setRating]);
 
+  useEffect(() => {
+    getFeedbackQuestion();
+  }, []);
+
+  const {
+    retrieveCycle,
+    isFinished,
+    setIsFinished,
+    setHasStarted,
+    hasStarted,
+  } = React.useContext(CycleContext);
+  const { isLoading } = React.useContext(AccountContext);
+  const confettiRef = useRef(null);
+  React.useEffect(() => {
+    if (route.params?.message) {
+      // Post updated, do something with `route.params.post`
+      // For example, send the post to the server
+      CongratsButtonAlert();
+      TriggerConfetti();
+      route.params.message = null;
+    }
+  }, [route.params?.message]);
+
+  const CongratsButtonAlert = () => {
+    Alert.alert("Félicitations", route.params.message, [
+      {
+        text: "OK",
+      },
+    ]);
+    setIsFinished(false);
+  };
+  const TriggerConfetti = () => {
+    confettiRef.current?.play(0);
+    setIsFinished(false);
+
+    return (
+      <LottieView
+        ref={confettiRef}
+        source={require("../../../../assets/confetti.json")}
+        autoPlay={true}
+        loop={false}
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 1000,
+          pointerEvents: "none",
+        }}
+        resizeMode="cover"
+      />
+    );
+  };
   return (
     <FeedbackBackground>
       <BackButton
@@ -44,7 +101,10 @@ export const FeedbackScreen = ({ navigation }) => {
               },
               {
                 text: "Valider",
-                onPress: () => navigation.navigate("Homepage"),
+                onPress: () => {
+                  navigation.navigate("Homepage");
+                  setHasStarted(false);
+                },
                 style: "default",
               },
             ],
@@ -54,9 +114,7 @@ export const FeedbackScreen = ({ navigation }) => {
         {"<"}
         Retour
       </BackButton>
-      <FeedbackTitle>
-        Qu'avez vous pensez du cycle 4b que vous venez de visionner ?
-      </FeedbackTitle>
+      <FeedbackTitle>{question}</FeedbackTitle>
       <Rating>
         <TouchableOpacity
           key={"buttonstar1"}
@@ -129,10 +187,12 @@ export const FeedbackScreen = ({ navigation }) => {
           onPress={async () => {
             const response = await handleSubmitFeedback();
             if (response) {
-              Alert.alert("Merci pour votre commentaire!", "", [
-                { text: "OK", onPress: () => navigation.navigate("Homepage") },
-              ]);
+              console.log("screen", response);
+              navigation.navigate("Homepage", {
+                message: "Merci pour votre retour !",
+              });
             }
+            setHasStarted(false);
           }}
         >
           <TextButton style={{ fontSize: 22 }}>Valider</TextButton>

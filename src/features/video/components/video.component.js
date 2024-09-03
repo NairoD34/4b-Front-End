@@ -15,11 +15,12 @@ export const VideoComponent = ({ navigation }) => {
     setProgress,
     retrieveCycle,
     isFinished,
+    setIsFinished,
     hasStarted,
     setHasStarted,
   } = React.useContext(CycleContext);
 
-  const [fullscreen, setFullscreen] = React.useState(false);
+  const [inFullscreen, setInFullscreen] = React.useState(true);
 
   const [status, setStatus] = React.useState({});
 
@@ -48,6 +49,7 @@ export const VideoComponent = ({ navigation }) => {
       if (playbackStatus.positionMillis > 0) {
         Started = true;
         setProgress(0);
+        setHasStarted(true);
       }
     }
     if (playbackStatus.didJustFinish && !playbackStatus.isLooping) {
@@ -62,11 +64,19 @@ export const VideoComponent = ({ navigation }) => {
   };
   let done = false;
   useEffect(() => {
-    if (isFinished) {
-      setHasStarted(false);
-      navigation.navigate("Homepage", {
+    if (isFinished && hasStarted) {
+      setIsFinished(false);
+      navigation.navigate("Feedback", {
         message:
           "Vous avez terminez le cycle 4b ! Bravo à vous et à très vite pour de nouvelles aventures!",
+        cycle: done,
+      });
+    }
+    if (isFinished && !hasStarted) {
+      setIsFinished(false);
+      setHasStarted(false);
+      navigation.navigate("Homepage", {
+        message: "Plus de cycle 4b disponible, Nous revenons au plus vite !",
         cycle: done,
       });
     }
@@ -123,6 +133,7 @@ export const VideoComponent = ({ navigation }) => {
         }}
         fullscreen={{
           visible: false,
+          inFullscreen,
         }}
         slider={{
           visible: true,
@@ -131,6 +142,7 @@ export const VideoComponent = ({ navigation }) => {
           play: <Text style={{ fontSize: 24, color: "#4649E3" }}>PLAY</Text>,
           pause: <Text style={{ fontSize: 24, color: "#4649E3" }}>PAUSE</Text>,
         }}
+        styker={{ flex: 1 }}
         timeVisible={false}
         header={
           <BackButton onPress={() => navigation.navigate("Homepage")}>

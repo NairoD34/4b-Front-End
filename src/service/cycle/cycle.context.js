@@ -1,11 +1,6 @@
 import React, { useState, createContext, useEffect } from "react";
 
-import {
-  CyclesTransform,
-  getCycle,
-  getNextToPlay,
-  postUserProgressLogs,
-} from "./cycle.service";
+import { getCycle, postUserProgressLogs } from "./cycle.service";
 
 export const CycleContext = createContext();
 
@@ -14,32 +9,28 @@ export const CycleContextProvider = ({ children }) => {
   const [isLoading2, setIsLoading2] = useState(false);
   const [error, setError] = useState(null);
   const [progress, setProgress] = useState(0);
-  const [hasStarted, setHasStarted] = useState(0);
+  const [hasStarted, setHasStarted] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
   const [cycle, setCycle] = useState(null);
-  console.log("isloading2", isLoading2);
+
   useEffect(() => {
     cycleContentProgress(progress);
   }, [progress]);
   const retrieveCycle = async () => {
     setIsLoading2(true);
     const response = await getCycle();
-    if (response === null) {
+    console.log("response", response);
+    if (response) {
+      console.log("Contextresponse");
+      setIsLoading2(false);
+      setCycleContent(response.content.media.url);
+      setCycle(response.cycle);
+    } else {
       setIsLoading2(false);
       setCycleContent(null);
       setIsFinished(true);
     }
-    if (response.error) {
-      setIsLoading2(false);
-      setError(response.error);
-    } else {
-      console.log("Contextresponse");
-      setIsLoading2(false);
-      setCycleContent(response.content.media.url);
-      setCycle(response.cycle_id);
-    }
   };
-  let l;
 
   const cycleContentProgress = async (pouet) => {
     console.log("oui");

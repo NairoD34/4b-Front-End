@@ -26,6 +26,7 @@ export const getNextToPlay = async () => {
   console.log("user", user); // Log the user ID for debugging
   const token = await AsyncStorage.getItem("token"); // Retrieve the token from AsyncStorage
   const URL = `https://app.4brn.com/api/playlists/${user}`; // Construct the URL for fetching the next content to play
+  console.log("token", token); // Log the
   const request = await fetch(URL, {
     method: "GET", // Set the request method to GET
     headers: {

@@ -34,6 +34,7 @@ export const HomepageScreen = ({ route, navigation }) => {
   }, [route.params?.message]);
   const TriggerConfetti = () => {
     confettiRef.current?.play(0);
+    setIsFinished(false);
 
     return (
       <LottieView
@@ -54,12 +55,13 @@ export const HomepageScreen = ({ route, navigation }) => {
       />
     );
   };
-  const CongratsButtonAlert = () =>
+  const CongratsButtonAlert = () => {
     Alert.alert("Félicitations", route.params.message, [
       {
         text: "OK",
       },
     ]);
+  };
   return (
     <View style={{ flex: 1 }}>
       {isLoading ? (

@@ -1,25 +1,40 @@
 import React, { useState, createContext, useEffect, useContext } from "react";
 
-import { sendFeedback } from "./feedback.service";
+import { retrieveSurveyQuestion, sendFeedback } from "./feedback.service";
 import { CycleContext } from "../cycle/cycle.context";
 
 export const FeedbackContext = createContext();
 
 export const FeedbackContextProvider = ({ children }) => {
   const [feedbackMessage, setFeedbackMessage] = useState("");
-  const [rating, setRating] = useState(null);
+  const [rating, setRating] = useState(4);
+  const [question, setQuestion] = useState(null);
+  const [questionId, setQuestionId] = useState(null);
   const { cycle } = useContext(CycleContext);
 
-  const handleSubmitFeedback = () => {
-    const response = sendFeedback(feedbackMessage, rating, cycle);
+  useEffect(() => {
+    getFeedbackQuestion();
+  }, []);
+
+  const getFeedbackQuestion = async () => {
+    const response = await retrieveSurveyQuestion(cycle);
+    console.log("question", response);
+    if (!response.error) {
+      setQuestion(response.content);
+      console.log(question);
+      setQuestionId(response.id);
+    }
+  };
+  const handleSubmitFeedback = async () => {
+    const response = await sendFeedback(feedbackMessage, rating, questionId);
     console.log("feedback", feedbackMessage, "ratings", rating);
     if (response.errors) {
       console.error("Error sending feedback:", response.errors);
       return false;
     } else {
       setFeedbackMessage("");
-      setRating(0);
-      console.log(response);
+      setRating(4);
+      console.log("context", response);
       return true;
     }
   };
@@ -42,6 +57,8 @@ export const FeedbackContextProvider = ({ children }) => {
         handleSubmitFeedback,
         handleChangesFeedback,
         rating,
+        question,
+        getFeedbackQuestion,
       }}
     >
       {children}
