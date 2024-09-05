@@ -12,6 +12,7 @@ import {
 } from "./account.service";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import asyncStorage from "@react-native-async-storage/async-storage/src/AsyncStorage";
+import User from "../../model/User";
 
 // Create a context for the account
 export const AccountContext = createContext();
@@ -23,73 +24,46 @@ export const AccountContextProvider = ({ children }) => {
   const [email, setEmail] = useState();
   const [modifyEmail, setModifyEmail] = useState(null);
   const [verifyCode, setVerifyCode] = useState(null);
-  const [isVerified, setIsVerified] = useState(false);
   const [password, setPassword] = useState();
   const [isLoggedInPermanently, setIsLoggedInPermanently] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isRegister, setIsRegister] = useState(false);
   const [stayConnected, setStayConnected] = useState(false);
-  const [token, setToken] = useState(null);
   const [day, setDay] = useState(null);
   const [month, setMonth] = useState(null);
   const [year, setYear] = useState(null);
-  const [firstname, setFirstname] = useState(null);
-  const [lastname, setLastname] = useState(null);
   const [send, setSend] = useState(false);
-  const [dob, setDob] = useState({
-    day: null,
-    month: null,
-    year: null,
-  });
+
+  const [user, setUser] = useState();
   const [modifyFirstname, setModifyFirstname] = useState(null);
   const [modifyLastname, setModifyLastname] = useState(null);
-
+  /** TODO condenser les data user dans un seul state user en mode objet et faire attention lorsque ses data
+     /*sont modifiés à les géré correctement sans réécrire tout l'objet. voir video Manuel sur les best practice js
+   **/
   useEffect(() => {
+    const newUser = new User(1, "d", "d@d.fr");
+    console.log("newUser", newUser.firstname);
     const getToken = async () => {
-      const token = await AsyncStorage.getItem("token");
-      if (token) {
+      const userData = await AsyncStorage.getItem("user");
+      const user = JSON.parse(userData);
+      if (user.token != null && user.isVerified) {
+        console.log("token: " + token);
+        console.log("isVerified: " + user.isVerified);
+
         setIsLoggedInPermanently(true);
       }
     };
-    const getUserData = async () => {
-      const firstname = await AsyncStorage.getItem("user_firstname");
-      const lastname = await AsyncStorage.getItem("user_lastname");
-      const DOB = await AsyncStorage.getItem("user_dob");
-      const email = await AsyncStorage.getItem("user_email");
-      const isVerified = await AsyncStorage.getItem("isVerified");
-      if (firstname) {
-        console.log("Firstname: " + firstname);
-        setFirstname(firstname);
-      }
-      if (lastname) {
-        console.log("lastname: " + lastname);
-        setLastname(lastname);
-      }
-      if (email) {
-        console.log("email: " + email);
-        setEmail(email);
-      }
-      if (isVerified) {
-        setIsVerified(true);
-      }
-      if (DOB) {
-        console.log("DOB", DOB);
-        setDob({
-          day: format(DOB, "dd"),
-          month: format(DOB, "MM"),
-          year: format(DOB, "yyyy"),
-        });
-      }
-    };
-    getToken();
-    getUserData();
+    //getToken();
+
+    console.log("userdatas: ", user);
+    console.log("ILP", isLoggedInPermanently);
   }, []);
 
   /**
    * Handles user login.
    */
   const handleLogin = async () => {
-    const response = await getLogin(email, password);
+    const response = await getLogin(user.email, password);
     setIsLoading(true);
     if (response.error) {
       setIsLoading(false);
@@ -100,32 +74,40 @@ export const AccountContextProvider = ({ children }) => {
         setError(null);
       }, 5000);
     } else {
-      accountService.saveAsyncData("user_id", JSON.stringify(response.id));
-      accountService.saveAsyncData("token", response.validTokenStrings[0]);
       setIsLoggedIn(true);
       setIsLoading(false);
-      setToken(response.validTokenStrings[0]);
       setError(null);
-      setFirstname(response.firstname);
-      setLastname(response.lastname);
-      setDob({
-        day: format(response.dob, "dd"),
-        month: format(response.dob, "MM"),
-        year: format(response.dob, "yyyy"),
-      });
+      const dob = new Date(response.dob);
+      setUser((prevUser) => ({
+        firstName: response.firstname,
+        lastName: response.lastname,
+        dob: {
+          day: format(dob, "dd"),
+          month: format(dob, "MM"),
+          year: format(dob, "yyyy"),
+        },
+        token: response.validTokenStrings[0],
+      }));
+      r;
 
       if (stayConnected) {
-        accountService.saveAsyncData("user_id", JSON.stringify(response.id));
-        accountService.saveAsyncData("user_firstname", response.firstname);
-        accountService.saveAsyncData("user_lastname", response.lastname);
-        accountService.saveAsyncData("user_dob", response.dob);
-        accountService.saveAsyncData("user_email", response.email);
+        try {
+          accountService.saveAsyncData("user", JSON.stringify(user));
+        } catch (e) {
+          console.error("error saving user data from handleLogin", e);
+        }
       }
       if (response.verified === true) {
-        setIsVerified(true);
+        setUser((prevUser) => ({
+          ...prevUser,
+          isVerified: true,
+        }));
         accountService.saveAsyncData("isVerified", "true");
       } else {
-        setIsVerified(false);
+        setUser((prevUser) => ({
+          ...prevUser,
+          isVerified: false,
+        }));
       }
     }
   };
@@ -145,16 +127,16 @@ export const AccountContextProvider = ({ children }) => {
     };
     try {
       const response = await getRegister(
-        email,
+        user.email,
         password,
-        firstname,
-        lastname,
+        user.firstname,
+        user.lastname,
         formattedDOB(),
       );
       console.log("rescontext", response);
       if (!response.error) {
         setIsLoading(false);
-        const loginResponse = await getLogin(email, password);
+        const loginResponse = await getLogin(user.email, password);
         console.log("loginRes", loginResponse);
         accountService.saveAsyncData(
           "user_id",
@@ -166,14 +148,17 @@ export const AccountContextProvider = ({ children }) => {
         );
         setIsLoggedIn(true);
         setIsLoading(false);
-        setToken(loginResponse.validTokenStrings[0]);
         setError(null);
-        setFirstname(loginResponse.firstname);
-        setLastname(loginResponse.lastname);
-        setDob({
-          day: format(loginResponse.dob, "dd"),
-          month: format(loginResponse.dob, "MM"),
-          year: format(loginResponse.dob, "yyyy"),
+        setUser({
+          ...user,
+          firstName: loginResponse.firstName,
+          lastName: loginResponse.lastName,
+          dob: {
+            day: format(loginResponse.dob, "dd"),
+            month: format(loginResponse.dob, "MM"),
+            year: format(loginResponse.dob, "yyyy"),
+          },
+          token: loginResponse.validTokenStrings[0],
         });
         return true;
       } else {
@@ -203,9 +188,11 @@ export const AccountContextProvider = ({ children }) => {
       setTimeout(() => {
         setError(null);
       }, 5000);
+      return false;
     } else {
       setIsLoading(false);
-      setIsVerified(true);
+      setUser({ ...user, isVerified: true });
+      return true;
     }
   };
 
@@ -232,15 +219,18 @@ export const AccountContextProvider = ({ children }) => {
     if (!response.errors) {
       setIsLoading(false);
       alert("Vos données ont bien étaient modifiés");
-      setFirstname(response.firstname);
-      console.log("Firstname", response.firstname);
-      setLastname(response.lastname);
-      setDob({
-        day: format(response.dob, "dd"),
-        month: format(response.dob, "MM"),
-        year: format(response.dob, "yyyy"),
+      setUser({
+        ...user,
+        firstname: response.firstname,
+        lastname: response.lastname,
+        dob: {
+          day: format(response.dob, "dd"),
+          month: format(response.dob, "MM"),
+          year: format(response.dob, "yyyy"),
+        },
+        email: response.email,
       });
-      setEmail(response.email);
+      console.log("Firstname", response.firstname);
     } else {
       setIsLoading(false);
       setError(response.errors);
@@ -298,24 +288,25 @@ export const AccountContextProvider = ({ children }) => {
     const response = await logout();
     setIsLoggedIn(false);
     setIsLoggedInPermanently(false);
-    setEmail(null);
-    setPassword(null);
-    setError(null);
-    setFirstname(null);
-    setLastname(null);
-    setDob({
-      day: null,
-      month: null,
-      year: null,
+    setUser({
+      firstname: "",
+      lastname: "",
+      dob: {
+        day: null,
+        month: null,
+        year: null,
+      },
+      email: "",
+      token: "",
+      isVerified: false,
     });
-    setIsVerified(false);
+    setError(null);
   };
 
   return (
     <AccountContext.Provider
       value={{
         isLoading,
-        setEmail,
         setPassword,
         error,
         handleLogin,
@@ -326,21 +317,9 @@ export const AccountContextProvider = ({ children }) => {
         setStayConnected,
         stayConnected,
         isLoggedInPermanently,
-        token,
-        email,
-        firstname,
-        lastname,
-        dob,
         password,
-        setLastname,
-        setFirstname,
-        setDob,
         handleRegister,
-        setDay,
-        setMonth,
-        setYear,
         handleVerify,
-        isVerified,
         setModifyFirstname,
         setModifyLastname,
         setModifyEmail,
@@ -350,6 +329,11 @@ export const AccountContextProvider = ({ children }) => {
         send,
         setSend,
         handleNewCode,
+        user,
+        setUser,
+        setDay,
+        setMonth,
+        setYear,
       }}
     >
       {children}

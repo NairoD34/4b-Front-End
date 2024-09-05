@@ -28,6 +28,8 @@ export const LoginScreen = ({ navigation }) => {
     setEmail,
     email,
     password,
+    user,
+    setUser,
     error,
     setStayConnected,
     stayConnected,
@@ -49,7 +51,7 @@ export const LoginScreen = ({ navigation }) => {
           <AccountInput
             placeholder="E-mail"
             keyboardType="email-address"
-            onChangeText={setEmail}
+            onChangeText={(e) => setUser({ ...user, email: e })}
           />
           <View style={{ marginTop: 20 }} />
           <AccountInput

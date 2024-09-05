@@ -25,10 +25,6 @@ import { LoadingScreen } from "../../loading/screens/loading.screen";
 
 export const PersonnalInfoScreen = ({ navigation }) => {
   const {
-    firstname,
-    lastname,
-    dob,
-    email,
     isLoading,
     setModifyFirstname,
     setModifyLastname,
@@ -37,6 +33,7 @@ export const PersonnalInfoScreen = ({ navigation }) => {
     setMonth,
     setYear,
     handleUsersDataModify,
+    user,
   } = useContext(AccountContext);
   return (
     <View style={{ flex: 1 }}>
@@ -53,15 +50,15 @@ export const PersonnalInfoScreen = ({ navigation }) => {
             <PersonnalInfoContainer>
               <LeftBlockView>
                 <PersonnalInfoInput
-                  placeholder={firstname}
+                  placeholder={user.firstname}
                   onChangeText={(t) => setModifyFirstname(t)}
                 />
                 <PersonnalInfoInput
-                  placeholder={lastname}
+                  placeholder={user.lastname}
                   onChangeText={(t) => setModifyLastname(t)}
                 />
                 <PersonnalInfoInput
-                  placeholder={email}
+                  placeholder={user.email}
                   keyboardType="email-address"
                   onChangeText={(t) => setModifyEmail(t)}
                 />
@@ -73,19 +70,19 @@ export const PersonnalInfoScreen = ({ navigation }) => {
                   <Text variant="label">Date de naissance</Text>
                   <View style={{ flexDirection: "row", marginLeft: 20 }}>
                     <DobInput
-                      placeholder={dob.day}
+                      placeholder={user.dob.day}
                       onChangeText={(d) => setDay(d)}
                       maxLength={2}
                       keyboardType={"number-pad"}
                     />
                     <DobInput
-                      placeholder={dob.month}
+                      placeholder={user.dob.month}
                       onChangeText={(m) => setMonth(m)}
                       maxLength={2}
                       keyboardType={"number-pad"}
                     />
                     <DobInput
-                      placeholder={dob.year}
+                      placeholder={user.dob.year}
                       onChangeText={(y) => setYear(y)}
                       maxLength={4}
                       keyboardType={"number-pad"}

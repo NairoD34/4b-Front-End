@@ -11,52 +11,16 @@ import { HomepageBackground } from "../../homepage/components/homepage.style";
 
 export const VideoComponent = ({ navigation }) => {
   const {
-    cycleContent,
-    setProgress,
-    retrieveCycle,
+    cycles,
     isFinished,
     setIsFinished,
     hasStarted,
     setHasStarted,
+    cycleContentProgress,
   } = React.useContext(CycleContext);
 
   const [inFullscreen, setInFullscreen] = React.useState(true);
 
-  const [status, setStatus] = React.useState({});
-
-  const _onPlaybackStatusUpdate = async (playbackStatus) => {
-    let Started = false;
-    if (playbackStatus.isLoaded) {
-      if (playbackStatus.error) {
-        console.log(
-          `Encountered a fatal error during playback: ${playbackStatus.error}`,
-        );
-        // Send Expo team the error on Slack or the forums so we can help you debug!
-      }
-    } else {
-      // Update your UI for the loaded state
-
-      if (playbackStatus.isPlaying) {
-      } else {
-        // Update your UI for the paused state
-      }
-
-      if (playbackStatus.isBuffering) {
-        // Update your UI for the buffering state
-      }
-    }
-    if (Started === false) {
-      if (playbackStatus.positionMillis > 0) {
-        Started = true;
-        setProgress(0);
-        setHasStarted(true);
-      }
-    }
-    if (playbackStatus.didJustFinish && !playbackStatus.isLooping) {
-      // The player has just finished playing and will stop. Maybe you want to play something else?
-      setProgress(1);
-    }
-  };
   const video = React.useRef(null);
   const _handleVideoRef = (component) => {
     const playbackObject = component;
@@ -88,7 +52,7 @@ export const VideoComponent = ({ navigation }) => {
           shouldPlay: true,
           resizeMode: ResizeMode.CONTAIN,
           source: {
-            uri: `https://4bmedia.s3.eu-west-3.amazonaws.com/cycle_video/${cycleContent}`,
+            uri: `https://4bmedia.s3.eu-west-3.amazonaws.com/cycle_video/${cycles.cycleContent.url}`,
           },
           ref: video,
           nativeControls: false,
@@ -96,7 +60,7 @@ export const VideoComponent = ({ navigation }) => {
         playbackCallback={async (playbackStatus) => {
           let hasStarted = false;
           let isPlaying = false;
-          if (cycleContent === undefined) {
+          if (cycleContentURL === undefined) {
             navigation.navigate("Homepage");
           }
           if (playbackStatus.isLoaded) {
@@ -110,7 +74,6 @@ export const VideoComponent = ({ navigation }) => {
             // Update your UI for the loaded state
 
             if (playbackStatus.isPlaying) {
-              isPlaying = true;
             } else {
               // Update your UI for the paused state
             }
@@ -119,15 +82,19 @@ export const VideoComponent = ({ navigation }) => {
               // Update your UI for the buffering state
             }
           }
-          if (hasStarted === false) {
-            if (playbackStatus.positionMillis > 0) {
-              hasStarted = true;
-              setProgress(0);
-            }
+
+          if (
+            playbackStatus.positionMillis > 1000 &&
+            playbackStatus.positionMillis < 2000
+          ) {
+            setHasStarted(true);
+            console.log("pouet");
           }
+
           if (playbackStatus.didJustFinish && !playbackStatus.isLooping) {
             // The player has just finished playing and will stop. Maybe you want to play something else?
-            setProgress(1);
+            await cycleContentProgress(1);
+            setIsFinished(true);
             done = true;
           }
         }}

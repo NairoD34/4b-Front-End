@@ -17,15 +17,12 @@ export const VideoPlayerScreen = ({ navigation }) => {
   const { cycleContent, isFinished, isLoading2, hasStarted } =
     useContext(CycleContext);
   const { isLoading } = useContext(AccountContext);
-  console.log(cycleContent);
   const [fullscreen, setFullscreen] = React.useState(false);
 
   const [status, setStatus] = React.useState({});
   const [isPlaying, setIsPlaying] = React.useState(true);
 
   const video = React.useRef(null);
-
-  console.log("URL", cycleContent);
 
   useEffect(() => {
     console.log("finish", isFinished);

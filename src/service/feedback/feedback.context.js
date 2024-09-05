@@ -10,6 +10,19 @@ export const FeedbackContextProvider = ({ children }) => {
   const [rating, setRating] = useState(4);
   const [question, setQuestion] = useState(null);
   const [questionId, setQuestionId] = useState(null);
+  const [survey, setSurvey] = useState({
+    id: "",
+    title: "",
+    description: "",
+    questions: [
+      {
+        id: "",
+        content: "",
+        displayOrder: "",
+        required: true,
+      },
+    ],
+  });
   const { cycle } = useContext(CycleContext);
 
   useEffect(() => {

@@ -8,10 +8,11 @@ import { accountService } from "../../service/account/account.service";
 import { AccountContext } from "../../service/account/account.context";
 
 export const Navigation = () => {
-  const { isLoggedIn, isLoggedInPermanently, isVerified } =
+  const { isLoggedIn, isLoggedInPermanently, user } =
     useContext(AccountContext);
+  const isVerified = false;
 
-  useEffect(() => {}, [isLoggedIn, isLoggedInPermanently, isVerified]);
+  useEffect(() => {}, [isLoggedIn, isLoggedInPermanently]);
   return (
     <NavigationContainer>
       {(isLoggedIn && isVerified) || (isLoggedInPermanently && isVerified) ? (

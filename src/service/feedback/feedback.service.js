@@ -26,7 +26,7 @@ export const sendFeedback = async (text, rating, cycle) => {
 };
 
 export const retrieveSurveyQuestion = async (cycle) => {
-  const URL = `https://app.4brn.com/api/survey_questions?survey.cycle.id=${cycle}`;
+  const URL = `https://app.4brn.com/api/survey_questions.json?survey.cycle.id=${cycle}`;
   const token = await AsyncStorage.getItem("token"); // Retrieve the user ID from AsyncStorage
   // Make a GET request to the URL with the user's token
 
@@ -39,7 +39,26 @@ export const retrieveSurveyQuestion = async (cycle) => {
   });
   console.log("requestquestion", request);
   const response = await request.json();
-  console.log("servicequestion", response);
-  console.log("surveyQuestion", response.id);
+  console.log("servicequestion", response[0].content);
+  console.log("surveyQuestion", response.content);
+  return response;
+};
+
+export const retrieveSurvey = async (cycle) => {
+  const URL = `https://app.4brn.com/api/survey.json?survey.cycle.id=${cycle}`;
+  const token = await AsyncStorage.getItem("token"); // Retrieve the user ID from AsyncStorage
+  // Make a GET request to the URL with the user's token
+
+  const request = await fetch(URL, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authentication: `Bearer ${token}`,
+    },
+  });
+  console.log("requestquestion", request);
+  const response = await request.json();
+  console.log("servicequestion", response[0].content);
+  console.log("surveyQuestion", response.content);
   return response;
 };
