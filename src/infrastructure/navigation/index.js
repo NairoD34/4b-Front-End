@@ -14,8 +14,8 @@ export const Navigation = () => {
   useEffect(() => {}, [isLoggedIn, isLoggedInPermanently]);
   return (
     <NavigationContainer>
-      {(isLoggedIn && user.isVerified) ||
-      (isLoggedInPermanently && user.isVerified) ? (
+      {(user && isLoggedIn && user.isVerified) ||
+      (user && isLoggedInPermanently && user.isVerified) ? (
         <HomepageNavigator />
       ) : (
         <AccountNavigator />

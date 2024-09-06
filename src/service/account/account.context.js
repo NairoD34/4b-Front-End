@@ -92,6 +92,7 @@ export const AccountContextProvider = ({ children }) => {
   /**
    * Handles user login.
    */
+
   const handleLogin = async () => {
     console.log("e&p", email, password);
     const response = await getLogin(email, password);
@@ -309,6 +310,7 @@ export const AccountContextProvider = ({ children }) => {
     const response = await logout();
     setIsLoggedIn(false);
     setIsLoggedInPermanently(false);
+    setStayConnected(false);
     setUser({
       firstname: "",
       lastname: "",
@@ -322,7 +324,6 @@ export const AccountContextProvider = ({ children }) => {
       isVerified: false,
     });
     setError(null);
-    setStayConnected(false);
     await AsyncStorage.removeItem("user");
   };
 
@@ -357,6 +358,7 @@ export const AccountContextProvider = ({ children }) => {
         setDay,
         setMonth,
         setYear,
+        setEmail,
       }}
     >
       {children}

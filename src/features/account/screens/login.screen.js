@@ -29,6 +29,8 @@ export const LoginScreen = ({ navigation }) => {
     error,
     setStayConnected,
     stayConnected,
+    user,
+    setUser,
   } = useContext(AccountContext);
 
   return (
@@ -71,8 +73,8 @@ export const LoginScreen = ({ navigation }) => {
         </TouchableOpacity>
         <LoginButton
           onPress={async () => {
-            const response = await handleLogin();
-            if (response === false || (!isVerified && !error)) {
+            await handleLogin();
+            if (!isVerified && !error) {
               navigation.navigate("Verify");
             }
           }}
