@@ -26,16 +26,9 @@ export const LoginScreen = ({ navigation }) => {
     isVerified,
     setPassword,
     setEmail,
-    email,
-    password,
-    user,
-    setUser,
     error,
     setStayConnected,
     stayConnected,
-    isLoading,
-    isLoggedInPermanently,
-    isLoggedIn,
   } = useContext(AccountContext);
 
   return (
@@ -51,7 +44,7 @@ export const LoginScreen = ({ navigation }) => {
           <AccountInput
             placeholder="E-mail"
             keyboardType="email-address"
-            onChangeText={(e) => setUser({ ...user, email: e })}
+            onChangeText={setEmail}
           />
           <View style={{ marginTop: 20 }} />
           <AccountInput
@@ -68,6 +61,7 @@ export const LoginScreen = ({ navigation }) => {
             buttonColor={stayConnected ? "#4649E3" : "white"}
             onPress={() => {
               setStayConnected(!stayConnected);
+              console.log("stayco", stayConnected);
             }}
           />
           <ConditionText>Rester connecté ?</ConditionText>
@@ -77,8 +71,8 @@ export const LoginScreen = ({ navigation }) => {
         </TouchableOpacity>
         <LoginButton
           onPress={async () => {
-            await handleLogin();
-            if (!isVerified && !error) {
+            const response = await handleLogin();
+            if (response === false || (!isVerified && !error)) {
               navigation.navigate("Verify");
             }
           }}

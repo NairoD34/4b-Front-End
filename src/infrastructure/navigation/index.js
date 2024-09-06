@@ -10,12 +10,12 @@ import { AccountContext } from "../../service/account/account.context";
 export const Navigation = () => {
   const { isLoggedIn, isLoggedInPermanently, user } =
     useContext(AccountContext);
-  const isVerified = false;
 
   useEffect(() => {}, [isLoggedIn, isLoggedInPermanently]);
   return (
     <NavigationContainer>
-      {(isLoggedIn && isVerified) || (isLoggedInPermanently && isVerified) ? (
+      {(isLoggedIn && user.isVerified) ||
+      (isLoggedInPermanently && user.isVerified) ? (
         <HomepageNavigator />
       ) : (
         <AccountNavigator />

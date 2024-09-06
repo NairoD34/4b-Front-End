@@ -40,30 +40,61 @@ export const AccountContextProvider = ({ children }) => {
   /** TODO condenser les data user dans un seul state user en mode objet et faire attention lorsque ses data
      /*sont modifiés à les géré correctement sans réécrire tout l'objet. voir video Manuel sur les best practice js
    **/
+  // useEffect(() => {
+  //   const newUser = new User(1, "d", "d@d.fr");
+  //   console.log("newUser", newUser.firstname);
+  //   const getToken = async () => {
+  //     const userData = await AsyncStorage.getItem("user");
+  //     const user = JSON.parse(userData);
+  //     if (user.token != null && user.isVerified) {
+  //       console.log("token: " + token);
+  //       console.log("isVerified: " + user.isVerified);
+  //
+  //       setIsLoggedInPermanently(true);
+  //     }
+  //   };
+  //   //getToken();
+  //
+  //   console.log("userdatas: ", user);
+  //   console.log("ILP", isLoggedInPermanently);
+  // }, []);
   useEffect(() => {
-    const newUser = new User(1, "d", "d@d.fr");
-    console.log("newUser", newUser.firstname);
-    const getToken = async () => {
-      const userData = await AsyncStorage.getItem("user");
-      const user = JSON.parse(userData);
-      if (user.token != null && user.isVerified) {
-        console.log("token: " + token);
-        console.log("isVerified: " + user.isVerified);
-
-        setIsLoggedInPermanently(true);
+    const loadUserFromStorage = async () => {
+      try {
+        const userData = await AsyncStorage.getItem("user");
+        if (userData) {
+          const storedUser = JSON.parse(userData);
+          if (storedUser.token && storedUser.isVerified) {
+            setUser(storedUser);
+            setIsLoggedInPermanently(true);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load user from AsyncStorage", error);
       }
     };
-    //getToken();
 
-    console.log("userdatas: ", user);
-    console.log("ILP", isLoggedInPermanently);
+    loadUserFromStorage();
   }, []);
 
+  useEffect(() => {
+    if (stayConnected && user) {
+      const saveUser = async () => {
+        try {
+          await accountService.saveAsyncData("user", JSON.stringify(user));
+        } catch (e) {
+          console.error("Error saving user data", e);
+        }
+      };
+      saveUser();
+    }
+  }, [user, stayConnected]);
   /**
    * Handles user login.
    */
   const handleLogin = async () => {
-    const response = await getLogin(user.email, password);
+    console.log("e&p", email, password);
+    const response = await getLogin(email, password);
     setIsLoading(true);
     if (response.error) {
       setIsLoading(false);
@@ -78,7 +109,8 @@ export const AccountContextProvider = ({ children }) => {
       setIsLoading(false);
       setError(null);
       const dob = new Date(response.dob);
-      setUser((prevUser) => ({
+      await setUser({
+        ...user,
         firstName: response.firstname,
         lastName: response.lastname,
         dob: {
@@ -87,27 +119,16 @@ export const AccountContextProvider = ({ children }) => {
           year: format(dob, "yyyy"),
         },
         token: response.validTokenStrings[0],
-      }));
-      r;
+        isVerified: response.verified === true,
+      });
 
       if (stayConnected) {
+        console.log("pouet");
         try {
           accountService.saveAsyncData("user", JSON.stringify(user));
         } catch (e) {
           console.error("error saving user data from handleLogin", e);
         }
-      }
-      if (response.verified === true) {
-        setUser((prevUser) => ({
-          ...prevUser,
-          isVerified: true,
-        }));
-        accountService.saveAsyncData("isVerified", "true");
-      } else {
-        setUser((prevUser) => ({
-          ...prevUser,
-          isVerified: false,
-        }));
       }
     }
   };
@@ -301,6 +322,8 @@ export const AccountContextProvider = ({ children }) => {
       isVerified: false,
     });
     setError(null);
+    setStayConnected(false);
+    await AsyncStorage.removeItem("user");
   };
 
   return (
