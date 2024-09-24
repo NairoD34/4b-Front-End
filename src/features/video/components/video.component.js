@@ -15,11 +15,15 @@ export const VideoComponent = ({ navigation }) => {
     isFinished,
     setIsFinished,
     hasStarted,
+    setIsLoading2,
     setHasStarted,
     cycleContentProgress,
+    contentCount,
+    setContentCount,
   } = React.useContext(CycleContext);
 
   const [inFullscreen, setInFullscreen] = React.useState(true);
+  const [URL, setURL] = React.useState();
 
   const video = React.useRef(null);
   const _handleVideoRef = (component) => {
@@ -27,24 +31,48 @@ export const VideoComponent = ({ navigation }) => {
     component.setOnPlaybackStatusUpdate(this._onPlaybackStatusUpdate);
   };
   let done = false;
+
   useEffect(() => {
-    if (isFinished && hasStarted) {
-      setIsFinished(false);
-      navigation.navigate("Feedback", {
-        message:
-          "Vous avez terminez le cycle 4b ! Bravo à vous et à très vite pour de nouvelles aventures!",
-        cycle: done,
-      });
+    console.log("cycle pouet", cycles.cycleContent[contentCount]);
+    console.log("cycle pouet 2 ", contentCount);
+    if (cycles.cycleContent) {
+      if (
+        cycles.cycleContent[contentCount] === undefined &&
+        cycles.cycleContent[contentCount - 1]
+      ) {
+        navigation.navigate("Feedback", {
+          message:
+            "Vous avez terminez le cycle 4b ! Bravo à vous et à très vite pour de nouvelles aventures!",
+          cycle: done,
+        });
+        setContentCount(0);
+      } else {
+        setURL(cycles.cycleContent[contentCount].content.media.url);
+      }
     }
-    if (isFinished && !hasStarted) {
-      setIsFinished(false);
-      setHasStarted(false);
-      navigation.navigate("Homepage", {
-        message: "Plus de cycle 4b disponible, Nous revenons au plus vite !",
-        cycle: done,
-      });
+  }, [contentCount, cycles]);
+  useEffect(() => {
+    if (cycles.progressLogs) {
+      console.log("logs1");
+      if (cycles.progressLogs[0]) {
+        console.log("logs2");
+
+        const logs = cycles.progressLogs.find(
+          (p) => p.content.id === cycles.cycleContent[contentCount].id,
+        );
+        if (logs) {
+          console.log("logs3", logs);
+
+          if (logs.statusCode !== 0 && logs.statusCode !== 2) {
+            console.log("logs4");
+
+            setContentCount((prev) => prev + 1);
+          }
+        }
+      }
     }
-  }, [isFinished]);
+  }, []);
+
   return (
     <HomepageBackground>
       <VideoPlayer
@@ -52,17 +80,12 @@ export const VideoComponent = ({ navigation }) => {
           shouldPlay: true,
           resizeMode: ResizeMode.CONTAIN,
           source: {
-            uri: `https://4bmedia.s3.eu-west-3.amazonaws.com/cycle_video/${cycles.cycleContent.url}`,
+            uri: `https://4bmedia.s3.eu-west-3.amazonaws.com/cycle_video/${URL}`,
           },
           ref: video,
           nativeControls: false,
         }}
         playbackCallback={async (playbackStatus) => {
-          let hasStarted = false;
-          let isPlaying = false;
-          if (cycleContentURL === undefined) {
-            navigation.navigate("Homepage");
-          }
           if (playbackStatus.isLoaded) {
             if (playbackStatus.error) {
               console.log(
@@ -85,17 +108,21 @@ export const VideoComponent = ({ navigation }) => {
 
           if (
             playbackStatus.positionMillis > 1000 &&
-            playbackStatus.positionMillis < 2000
+            playbackStatus.positionMillis < 1500
           ) {
-            setHasStarted(true);
-            console.log("pouet");
+            await cycleContentProgress(cycles.cycleContent[contentCount].id, 0);
           }
 
           if (playbackStatus.didJustFinish && !playbackStatus.isLooping) {
             // The player has just finished playing and will stop. Maybe you want to play something else?
-            await cycleContentProgress(1);
-            setIsFinished(true);
-            done = true;
+            await cycleContentProgress(cycles.cycleContent[contentCount].id, 1);
+
+            setIsLoading2(true);
+            setTimeout(() => {
+              setContentCount((prev) => prev + 1);
+              playbackStatus.positionMillis = 0;
+              setIsLoading2(false);
+            }, 2000);
           }
         }}
         fullscreen={{
@@ -109,10 +136,16 @@ export const VideoComponent = ({ navigation }) => {
           play: <Text style={{ fontSize: 24, color: "#4649E3" }}>PLAY</Text>,
           pause: <Text style={{ fontSize: 24, color: "#4649E3" }}>PAUSE</Text>,
         }}
-        styker={{ flex: 1 }}
         timeVisible={false}
         header={
-          <BackButton onPress={() => navigation.navigate("Homepage")}>
+          <BackButton
+            onPress={() => {
+              navigation.reset({
+                index: 0,
+                routes: [{ name: "Homepage" }],
+              });
+            }}
+          >
             {"<"}
             Retour
           </BackButton>

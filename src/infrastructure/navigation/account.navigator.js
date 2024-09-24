@@ -16,6 +16,7 @@ export const AccountNavigator = () => (
   <Stack.Navigator
     screenOptions={{
       ...TransitionPresets.ModalSlideFromBottomIOS,
+      animation: "fade",
       headerShown: false,
     }}
   >

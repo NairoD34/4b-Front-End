@@ -50,11 +50,11 @@ export const PersonnalInfoScreen = ({ navigation }) => {
             <PersonnalInfoContainer>
               <LeftBlockView>
                 <PersonnalInfoInput
-                  placeholder={user.firstname}
+                  placeholder={user.firstName}
                   onChangeText={(t) => setModifyFirstname(t)}
                 />
                 <PersonnalInfoInput
-                  placeholder={user.lastname}
+                  placeholder={user.lastName}
                   onChangeText={(t) => setModifyLastname(t)}
                 />
                 <PersonnalInfoInput

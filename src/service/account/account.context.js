@@ -112,6 +112,8 @@ export const AccountContextProvider = ({ children }) => {
       const dob = new Date(response.dob);
       await setUser({
         ...user,
+        id: response.id,
+        email: response.email,
         firstName: response.firstname,
         lastName: response.lastname,
         dob: {
@@ -122,15 +124,6 @@ export const AccountContextProvider = ({ children }) => {
         token: response.validTokenStrings[0],
         isVerified: response.verified === true,
       });
-
-      if (stayConnected) {
-        console.log("pouet");
-        try {
-          accountService.saveAsyncData("user", JSON.stringify(user));
-        } catch (e) {
-          console.error("error saving user data from handleLogin", e);
-        }
-      }
     }
   };
 
@@ -151,8 +144,8 @@ export const AccountContextProvider = ({ children }) => {
       const response = await getRegister(
         user.email,
         password,
-        user.firstname,
-        user.lastname,
+        user.firstName,
+        user.lastName,
         formattedDOB(),
       );
       console.log("rescontext", response);
@@ -173,8 +166,8 @@ export const AccountContextProvider = ({ children }) => {
         setError(null);
         setUser({
           ...user,
-          firstName: loginResponse.firstName,
-          lastName: loginResponse.lastName,
+          firstName: loginResponse.firstname,
+          lastName: loginResponse.lastname,
           dob: {
             day: format(loginResponse.dob, "dd"),
             month: format(loginResponse.dob, "MM"),
@@ -243,8 +236,8 @@ export const AccountContextProvider = ({ children }) => {
       alert("Vos données ont bien étaient modifiés");
       setUser({
         ...user,
-        firstname: response.firstname,
-        lastname: response.lastname,
+        firstName: response.firstname,
+        lastName: response.lastname,
         dob: {
           day: format(response.dob, "dd"),
           month: format(response.dob, "MM"),
@@ -261,14 +254,9 @@ export const AccountContextProvider = ({ children }) => {
       }, 5000);
     }
     if (isLoggedInPermanently) {
-      await AsyncStorage.removeItem("user_firstname");
-      await AsyncStorage.removeItem("user_lastname");
-      await AsyncStorage.removeItem("user_dob");
-      await AsyncStorage.removeItem("user_email");
-      await accountService.saveAsyncData("user_firstname", response.firstname);
-      await accountService.saveAsyncData("user_lastname", response.lastname);
-      await accountService.saveAsyncData("user_dob", response.dob);
-      await accountService.saveAsyncData("user_email", response.email);
+      await AsyncStorage.removeItem("user");
+
+      await accountService.saveAsyncData("user", user);
     }
   };
 
@@ -312,8 +300,8 @@ export const AccountContextProvider = ({ children }) => {
     setIsLoggedInPermanently(false);
     setStayConnected(false);
     setUser({
-      firstname: "",
-      lastname: "",
+      firstName: "",
+      lastName: "",
       dob: {
         day: null,
         month: null,
@@ -330,6 +318,7 @@ export const AccountContextProvider = ({ children }) => {
   return (
     <AccountContext.Provider
       value={{
+        setIsLoading,
         isLoading,
         setPassword,
         error,

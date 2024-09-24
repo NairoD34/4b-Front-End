@@ -16,12 +16,13 @@ import { AccountContext } from "../../../service/account/account.context";
 export const HomepageScreen = ({ route, navigation }) => {
   const {
     retrieveCycle,
+    cycles,
     isFinished,
     setIsFinished,
     setHasStarted,
     hasStarted,
   } = React.useContext(CycleContext);
-  const { isLoading } = React.useContext(AccountContext);
+  const { setIsLoading, isLoading } = React.useContext(AccountContext);
   const confettiRef = useRef(null);
   React.useEffect(() => {
     if (route.params?.message) {
@@ -89,13 +90,28 @@ export const HomepageScreen = ({ route, navigation }) => {
           ></TouchableOpacity>
           <TouchableOpacity
             onPress={async () => {
-              navigation.navigate("VideoPlayer");
-              await retrieveCycle();
-              setHasStarted(true);
+              const res = await retrieveCycle();
+              if (res === false) {
+                Alert.alert(
+                  "Félicitations",
+                  "Vous avez terminé tous les cycles 4b disponibles ! Nous revenons très bientôt !",
+                  [
+                    {
+                      text: "OK",
+                    },
+                  ],
+                );
+              } else {
+                navigation.navigate("VideoPlayer");
+                setIsLoading(true);
+                setTimeout(() => {
+                  setIsLoading(false);
+                }, 2000);
+              }
             }}
           >
             <HomepageButton mode="contained">
-              {hasStarted ? (
+              {cycles.progressLogs && cycles.progressLogs.statusCode === 1 ? (
                 <TextButton>CONTINUER</TextButton>
               ) : (
                 <TextButton>COMMENCER</TextButton>

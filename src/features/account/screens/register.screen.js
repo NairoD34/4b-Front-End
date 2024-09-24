@@ -73,11 +73,11 @@ export const RegisterScreen = ({ navigation }) => {
           <LeftBlockView>
             <AccountInput
               placeholder="Nom"
-              onChangeText={(n) => setUser({ ...user, lastname: n })}
+              onChangeText={(n) => setUser({ ...user, lastName: n })}
             />
             <AccountInput
               placeholder="Prénom"
-              onChangeText={(p) => setUser({ ...user, firstname: p })}
+              onChangeText={(p) => setUser({ ...user, firstName: p })}
             />
             <AccountInput
               placeholder="E-mail"

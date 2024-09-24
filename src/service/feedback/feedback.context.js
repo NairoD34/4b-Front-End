@@ -1,6 +1,10 @@
 import React, { useState, createContext, useEffect, useContext } from "react";
 
-import { retrieveSurveyQuestion, sendFeedback } from "./feedback.service";
+import {
+  retrieveSurvey,
+  retrieveSurveyQuestion,
+  sendFeedback,
+} from "./feedback.service";
 import { CycleContext } from "../cycle/cycle.context";
 
 export const FeedbackContext = createContext();
@@ -23,19 +27,26 @@ export const FeedbackContextProvider = ({ children }) => {
       },
     ],
   });
-  const { cycle } = useContext(CycleContext);
+  const { cycles } = useContext(CycleContext);
 
   useEffect(() => {
-    getFeedbackQuestion();
+    getFeedbackSurvey();
   }, []);
 
-  const getFeedbackQuestion = async () => {
-    const response = await retrieveSurveyQuestion(cycle);
-    console.log("question", response);
+  const getFeedbackSurvey = async () => {
+    console.log("cycleid", cycles.id);
+    const response = await retrieveSurvey(cycles.id);
+    console.log("survey", response);
     if (!response.error) {
-      setQuestion(response.content);
-      console.log(question);
-      setQuestionId(response.id);
+      setSurvey({
+        ...survey,
+        id: response.id,
+        title: response.title,
+        description: response.description,
+        status: response.status,
+        questions: [response.surveyQuestions],
+      });
+      console.log(survey);
     }
   };
   const handleSubmitFeedback = async () => {
@@ -71,7 +82,7 @@ export const FeedbackContextProvider = ({ children }) => {
         handleChangesFeedback,
         rating,
         question,
-        getFeedbackQuestion,
+        getFeedbackSurvey,
       }}
     >
       {children}
