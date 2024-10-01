@@ -12,6 +12,8 @@ import { Alert, TouchableOpacity, View } from "react-native";
 import { CycleContext } from "../../../service/cycle/cycle.context";
 import { LoadingScreen } from "../../loading/screens/loading.screen";
 import { AccountContext } from "../../../service/account/account.context";
+import { retrieveSurvey } from "../../../service/feedback/feedback.service";
+import { FeedbackContext } from "../../../service/feedback/feedback.context";
 
 export const HomepageScreen = ({ route, navigation }) => {
   const {
@@ -22,6 +24,7 @@ export const HomepageScreen = ({ route, navigation }) => {
     setHasStarted,
     hasStarted,
   } = React.useContext(CycleContext);
+  const { getFeedbackSurvey, survey } = React.useContext(FeedbackContext);
   const { setIsLoading, isLoading } = React.useContext(AccountContext);
   const confettiRef = useRef(null);
   React.useEffect(() => {
@@ -86,7 +89,17 @@ export const HomepageScreen = ({ route, navigation }) => {
               height: 50,
               width: 50,
             }}
-            onPress={() => navigation.navigate("Feedback")}
+            onPress={async () => {
+              const res = await getFeedbackSurvey();
+              if (res) {
+                setIsLoading(true);
+                setTimeout(() => {
+                  console.log("surveyHomepage", survey);
+                  setIsLoading(false);
+                }, 5000);
+                navigation.navigate("Feedback");
+              }
+            }}
           ></TouchableOpacity>
           <TouchableOpacity
             onPress={async () => {

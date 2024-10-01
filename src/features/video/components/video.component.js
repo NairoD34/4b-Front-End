@@ -24,6 +24,7 @@ export const VideoComponent = ({ navigation }) => {
 
   const [inFullscreen, setInFullscreen] = React.useState(true);
   const [URL, setURL] = React.useState();
+  const [stop, setStop] = React.useState(false);
 
   const video = React.useRef(null);
   const _handleVideoRef = (component) => {
@@ -33,8 +34,6 @@ export const VideoComponent = ({ navigation }) => {
   let done = false;
 
   useEffect(() => {
-    console.log("cycle pouet", cycles.cycleContent[contentCount]);
-    console.log("cycle pouet 2 ", contentCount);
     if (cycles.cycleContent) {
       if (
         cycles.cycleContent[contentCount] === undefined &&
@@ -52,23 +51,12 @@ export const VideoComponent = ({ navigation }) => {
     }
   }, [contentCount, cycles]);
   useEffect(() => {
-    if (cycles.progressLogs) {
-      console.log("logs1");
-      if (cycles.progressLogs[0]) {
-        console.log("logs2");
-
-        const logs = cycles.progressLogs.find(
-          (p) => p.content.id === cycles.cycleContent[contentCount].id,
-        );
-        if (logs) {
-          console.log("logs3", logs);
-
-          if (logs.statusCode !== 0 && logs.statusCode !== 2) {
-            console.log("logs4");
-
-            setContentCount((prev) => prev + 1);
-          }
-        }
+    if (cycles.playNow) {
+      const start = cycles.cycleContent.findIndex(
+        (cycle) => cycle.id === cycles.playNow.id,
+      );
+      if (start) {
+        setContentCount(start);
       }
     }
   }, []);
@@ -112,6 +100,10 @@ export const VideoComponent = ({ navigation }) => {
           ) {
             await cycleContentProgress(cycles.cycleContent[contentCount].id, 0);
           }
+          if (stop === true) {
+            playbackStatus.isPlaying = false;
+            setStop(false);
+          }
 
           if (playbackStatus.didJustFinish && !playbackStatus.isLooping) {
             // The player has just finished playing and will stop. Maybe you want to play something else?
@@ -140,6 +132,7 @@ export const VideoComponent = ({ navigation }) => {
         header={
           <BackButton
             onPress={() => {
+              setStop(true);
               navigation.reset({
                 index: 0,
                 routes: [{ name: "Homepage" }],

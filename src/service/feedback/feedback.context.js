@@ -6,47 +6,27 @@ import {
   sendFeedback,
 } from "./feedback.service";
 import { CycleContext } from "../cycle/cycle.context";
+import { AccountContext } from "../account/account.context";
 
 export const FeedbackContext = createContext();
 
 export const FeedbackContextProvider = ({ children }) => {
-  const [feedbackMessage, setFeedbackMessage] = useState("");
-  const [rating, setRating] = useState(4);
-  const [question, setQuestion] = useState(null);
-  const [questionId, setQuestionId] = useState(null);
-  const [survey, setSurvey] = useState({
-    id: "",
-    title: "",
-    description: "",
-    questions: [
-      {
-        id: "",
-        content: "",
-        displayOrder: "",
-        required: true,
-      },
-    ],
-  });
   const { cycles } = useContext(CycleContext);
 
-  useEffect(() => {
-    getFeedbackSurvey();
-  }, []);
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [rating, setRating] = useState(4);
+  const [questionCount, setQuestionCount] = useState(0);
+  const [survey, setSurvey] = useState();
 
   const getFeedbackSurvey = async () => {
-    console.log("cycleid", cycles.id);
     const response = await retrieveSurvey(cycles.id);
-    console.log("survey", response);
+    console.log("resSurvey", response[0].cycle);
+
     if (!response.error) {
-      setSurvey({
-        ...survey,
-        id: response.id,
-        title: response.title,
-        description: response.description,
-        status: response.status,
-        questions: [response.surveyQuestions],
-      });
-      console.log(survey);
+      console.log("resSurveyContext", response[0]);
+      await setSurvey(response[0]);
+      console.log("survey", survey);
+      return true;
     }
   };
   const handleSubmitFeedback = async () => {
@@ -81,8 +61,10 @@ export const FeedbackContextProvider = ({ children }) => {
         handleSubmitFeedback,
         handleChangesFeedback,
         rating,
-        question,
         getFeedbackSurvey,
+        questionCount,
+        setQuestionCount,
+        survey,
       }}
     >
       {children}
