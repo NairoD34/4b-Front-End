@@ -22,8 +22,7 @@ import { useCallback, useContext } from "react";
 import { LoadingScreen } from "../../loading/screens/loading.screen";
 
 export const SettingsScreen = ({ navigation }) => {
-  const { getLogout, email, firstname, lastname, dob, isLoading } =
-    useContext(AccountContext);
+  const { getLogout, email, user, isLoading } = useContext(AccountContext);
   const helpwebsite = "https://4bkids.fr/faq";
   const OpenURLButton = ({ url, children }) => {
     const handlePress = useCallback(async () => {
@@ -67,7 +66,9 @@ export const SettingsScreen = ({ navigation }) => {
                       Mon Compte
                     </SettingsCardTitle>
                     <View style={{ height: 10 }} />
-                    <SettingsCardText variant="label">{email}</SettingsCardText>
+                    <SettingsCardText variant="label">
+                      {user.email}
+                    </SettingsCardText>
                   </Card.Content>
                 </SettingsCard>
               </TouchableOpacity>

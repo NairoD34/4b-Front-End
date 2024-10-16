@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { Button } from "react-native-paper";
 import { Text, StyleSheet, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
@@ -14,9 +14,9 @@ import { LoadingScreen } from "../../loading/screens/loading.screen";
 import { AccountContext } from "../../../service/account/account.context";
 
 export const VideoPlayerScreen = ({ navigation }) => {
-  const { cycleContent, isFinished, isLoading2 } = useContext(CycleContext);
+  const { cycleContent, isFinished, isLoading2, hasStarted } =
+    useContext(CycleContext);
   const { isLoading } = useContext(AccountContext);
-  console.log(cycleContent);
   const [fullscreen, setFullscreen] = React.useState(false);
 
   const [status, setStatus] = React.useState({});
@@ -24,7 +24,9 @@ export const VideoPlayerScreen = ({ navigation }) => {
 
   const video = React.useRef(null);
 
-  console.log("URL", cycleContent);
+  useEffect(() => {
+    console.log("finish", isFinished);
+  }, [isFinished]);
 
   return (
     <View style={{ flex: 1 }}>

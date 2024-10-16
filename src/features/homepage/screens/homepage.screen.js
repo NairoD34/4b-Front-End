@@ -2,7 +2,6 @@ import React, { useRef } from "react";
 import { Button } from "react-native-paper";
 import Icon from "react-native-vector-icons/FontAwesome";
 import LottieView from "lottie-react-native";
-import Survicate from "@survicate/react-native-survicate";
 
 import {
   HomepageBackground,
@@ -13,16 +12,20 @@ import { Alert, TouchableOpacity, View } from "react-native";
 import { CycleContext } from "../../../service/cycle/cycle.context";
 import { LoadingScreen } from "../../loading/screens/loading.screen";
 import { AccountContext } from "../../../service/account/account.context";
+import { retrieveSurvey } from "../../../service/feedback/feedback.service";
+import { FeedbackContext } from "../../../service/feedback/feedback.context";
 
 export const HomepageScreen = ({ route, navigation }) => {
   const {
     retrieveCycle,
+    cycles,
     isFinished,
     setIsFinished,
     setHasStarted,
     hasStarted,
   } = React.useContext(CycleContext);
-  const { isLoading } = React.useContext(AccountContext);
+  const { getFeedbackSurvey, survey } = React.useContext(FeedbackContext);
+  const { setIsLoading, isLoading } = React.useContext(AccountContext);
   const confettiRef = useRef(null);
   React.useEffect(() => {
     if (route.params?.message) {
@@ -35,6 +38,7 @@ export const HomepageScreen = ({ route, navigation }) => {
   }, [route.params?.message]);
   const TriggerConfetti = () => {
     confettiRef.current?.play(0);
+    setIsFinished(false);
 
     return (
       <LottieView
@@ -55,17 +59,13 @@ export const HomepageScreen = ({ route, navigation }) => {
       />
     );
   };
-  const CongratsButtonAlert = () =>
+  const CongratsButtonAlert = () => {
     Alert.alert("Félicitations", route.params.message, [
       {
         text: "OK",
-        onPress: () => {
-          if (route.params.done === true) {
-            Survicate.invokeEvent("CycleEnd");
-          }
-        },
       },
     ]);
+  };
   return (
     <View style={{ flex: 1 }}>
       {isLoading ? (
@@ -82,14 +82,49 @@ export const HomepageScreen = ({ route, navigation }) => {
             onPress={() => navigation.navigate("Settings")}
           ></Icon>
           <TouchableOpacity
+            style={{
+              position: "absolute",
+              top: 25,
+              right: 25,
+              height: 50,
+              width: 50,
+            }}
             onPress={async () => {
-              navigation.navigate("VideoPlayer");
-              await retrieveCycle();
-              setHasStarted(true);
+              const res = await getFeedbackSurvey();
+              if (res) {
+                setIsLoading(true);
+                setTimeout(() => {
+                  console.log("surveyHomepage", survey);
+                  setIsLoading(false);
+                }, 5000);
+                navigation.navigate("Feedback");
+              }
+            }}
+          ></TouchableOpacity>
+          <TouchableOpacity
+            onPress={async () => {
+              const res = await retrieveCycle();
+              if (res === false) {
+                Alert.alert(
+                  "Félicitations",
+                  "Vous avez terminé tous les cycles 4b disponibles ! Nous revenons très bientôt !",
+                  [
+                    {
+                      text: "OK",
+                    },
+                  ],
+                );
+              } else {
+                navigation.navigate("VideoPlayer");
+                setIsLoading(true);
+                setTimeout(() => {
+                  setIsLoading(false);
+                }, 2000);
+              }
             }}
           >
             <HomepageButton mode="contained">
-              {hasStarted ? (
+              {cycles.progressLogs && cycles.progressLogs.statusCode === 1 ? (
                 <TextButton>CONTINUER</TextButton>
               ) : (
                 <TextButton>COMMENCER</TextButton>

@@ -26,14 +26,11 @@ export const LoginScreen = ({ navigation }) => {
     isVerified,
     setPassword,
     setEmail,
-    email,
-    password,
     error,
     setStayConnected,
     stayConnected,
-    isLoading,
-    isLoggedInPermanently,
-    isLoggedIn,
+    user,
+    setUser,
   } = useContext(AccountContext);
 
   return (
@@ -66,6 +63,7 @@ export const LoginScreen = ({ navigation }) => {
             buttonColor={stayConnected ? "#4649E3" : "white"}
             onPress={() => {
               setStayConnected(!stayConnected);
+              console.log("stayco", stayConnected);
             }}
           />
           <ConditionText>Rester connecté ?</ConditionText>

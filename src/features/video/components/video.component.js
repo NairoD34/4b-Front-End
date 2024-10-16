@@ -11,66 +11,56 @@ import { HomepageBackground } from "../../homepage/components/homepage.style";
 
 export const VideoComponent = ({ navigation }) => {
   const {
-    cycleContent,
-    setProgress,
-    retrieveCycle,
+    cycles,
     isFinished,
+    setIsFinished,
     hasStarted,
+    setIsLoading2,
     setHasStarted,
+    cycleContentProgress,
+    contentCount,
+    setContentCount,
   } = React.useContext(CycleContext);
 
-  const [fullscreen, setFullscreen] = React.useState(false);
+  const [inFullscreen, setInFullscreen] = React.useState(true);
+  const [URL, setURL] = React.useState();
+  const [stop, setStop] = React.useState(false);
 
-  const [status, setStatus] = React.useState({});
-
-  const _onPlaybackStatusUpdate = async (playbackStatus) => {
-    let Started = false;
-    if (playbackStatus.isLoaded) {
-      if (playbackStatus.error) {
-        console.log(
-          `Encountered a fatal error during playback: ${playbackStatus.error}`,
-        );
-        // Send Expo team the error on Slack or the forums so we can help you debug!
-      }
-    } else {
-      // Update your UI for the loaded state
-
-      if (playbackStatus.isPlaying) {
-      } else {
-        // Update your UI for the paused state
-      }
-
-      if (playbackStatus.isBuffering) {
-        // Update your UI for the buffering state
-      }
-    }
-    if (Started === false) {
-      if (playbackStatus.positionMillis > 0) {
-        Started = true;
-        setProgress(0);
-      }
-    }
-    if (playbackStatus.didJustFinish && !playbackStatus.isLooping) {
-      // The player has just finished playing and will stop. Maybe you want to play something else?
-      setProgress(1);
-    }
-  };
   const video = React.useRef(null);
   const _handleVideoRef = (component) => {
     const playbackObject = component;
     component.setOnPlaybackStatusUpdate(this._onPlaybackStatusUpdate);
   };
   let done = false;
+
   useEffect(() => {
-    if (isFinished) {
-      setHasStarted(false);
-      navigation.navigate("Homepage", {
-        message:
-          "Vous avez terminez le cycle 4b ! Bravo à vous et à très vite pour de nouvelles aventures!",
-        cycle: done,
-      });
+    if (cycles.cycleContent) {
+      if (
+        cycles.cycleContent[contentCount] === undefined &&
+        cycles.cycleContent[contentCount - 1]
+      ) {
+        navigation.navigate("Feedback", {
+          message:
+            "Vous avez terminez le cycle 4b ! Bravo à vous et à très vite pour de nouvelles aventures!",
+          cycle: done,
+        });
+        setContentCount(0);
+      } else {
+        setURL(cycles.cycleContent[contentCount].content.media.url);
+      }
     }
-  }, [isFinished]);
+  }, [contentCount, cycles]);
+  useEffect(() => {
+    if (cycles.playNow) {
+      const start = cycles.cycleContent.findIndex(
+        (cycle) => cycle.id === cycles.playNow.id,
+      );
+      if (start) {
+        setContentCount(start);
+      }
+    }
+  }, []);
+
   return (
     <HomepageBackground>
       <VideoPlayer
@@ -78,17 +68,12 @@ export const VideoComponent = ({ navigation }) => {
           shouldPlay: true,
           resizeMode: ResizeMode.CONTAIN,
           source: {
-            uri: `https://4bmedia.s3.eu-west-3.amazonaws.com/cycle_video/${cycleContent}`,
+            uri: `https://4bmedia.s3.eu-west-3.amazonaws.com/cycle_video/${URL}`,
           },
           ref: video,
           nativeControls: false,
         }}
         playbackCallback={async (playbackStatus) => {
-          let hasStarted = false;
-          let isPlaying = false;
-          if (cycleContent === undefined) {
-            navigation.navigate("Homepage");
-          }
           if (playbackStatus.isLoaded) {
             if (playbackStatus.error) {
               console.log(
@@ -100,7 +85,6 @@ export const VideoComponent = ({ navigation }) => {
             // Update your UI for the loaded state
 
             if (playbackStatus.isPlaying) {
-              isPlaying = true;
             } else {
               // Update your UI for the paused state
             }
@@ -109,20 +93,33 @@ export const VideoComponent = ({ navigation }) => {
               // Update your UI for the buffering state
             }
           }
-          if (hasStarted === false) {
-            if (playbackStatus.positionMillis > 0) {
-              hasStarted = true;
-              setProgress(0);
-            }
+
+          if (
+            playbackStatus.positionMillis > 1000 &&
+            playbackStatus.positionMillis < 1500
+          ) {
+            await cycleContentProgress(cycles.cycleContent[contentCount].id, 0);
           }
+          if (stop === true) {
+            playbackStatus.isPlaying = false;
+            setStop(false);
+          }
+
           if (playbackStatus.didJustFinish && !playbackStatus.isLooping) {
             // The player has just finished playing and will stop. Maybe you want to play something else?
-            setProgress(1);
-            done = true;
+            await cycleContentProgress(cycles.cycleContent[contentCount].id, 1);
+
+            setIsLoading2(true);
+            setTimeout(() => {
+              setContentCount((prev) => prev + 1);
+              playbackStatus.positionMillis = 0;
+              setIsLoading2(false);
+            }, 2000);
           }
         }}
         fullscreen={{
           visible: false,
+          inFullscreen,
         }}
         slider={{
           visible: true,
@@ -133,7 +130,15 @@ export const VideoComponent = ({ navigation }) => {
         }}
         timeVisible={false}
         header={
-          <BackButton onPress={() => navigation.navigate("Homepage")}>
+          <BackButton
+            onPress={() => {
+              setStop(true);
+              navigation.reset({
+                index: 0,
+                routes: [{ name: "Homepage" }],
+              });
+            }}
+          >
             {"<"}
             Retour
           </BackButton>

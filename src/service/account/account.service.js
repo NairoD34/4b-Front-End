@@ -14,7 +14,6 @@ export const getLogin = async (email, password) => {
     email: email,
     password: password,
   };
-
   const requestOptions = {
     method: "POST",
     headers: myHeaders,
@@ -24,10 +23,11 @@ export const getLogin = async (email, password) => {
 
   const request = await fetch("https://app.4brn.com/auth", requestOptions);
   const response = await request.json();
+  console.log("login", response);
+
   if (response.error === "Email and password must be provided") {
     return { error: "Veuillez saisir votre email et votre mot de passe" };
   }
-  console.log("login", response);
   return response;
 };
 

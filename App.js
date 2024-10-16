@@ -8,6 +8,7 @@ import { Navigation } from "./src/infrastructure/navigation";
 import { CycleContextProvider } from "./src/service/cycle/cycle.context";
 import { AccountContextProvider } from "./src/service/account/account.context";
 import { useEffect } from "react";
+import { FeedbackContextProvider } from "./src/service/feedback/feedback.context";
 
 export default function App() {
   return (
@@ -15,7 +16,9 @@ export default function App() {
       <ThemeProvider theme={theme}>
         <AccountContextProvider>
           <CycleContextProvider>
-            <Navigation />
+            <FeedbackContextProvider>
+              <Navigation />
+            </FeedbackContextProvider>
           </CycleContextProvider>
         </AccountContextProvider>
       </ThemeProvider>

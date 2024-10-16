@@ -56,7 +56,14 @@ export const VerifyScreen = ({ navigation }) => {
             >
               <SmallText>Renvoyer un code à mon adresse mail</SmallText>
             </TouchableOpacity>
-            <LoginButton onPress={async () => await handleVerify()}>
+            <LoginButton
+              onPress={async () => {
+                const response = await handleVerify();
+                if (response) {
+                  navigation.navigate("Login");
+                }
+              }}
+            >
               <TextButton>Valider</TextButton>
             </LoginButton>
           </SafeArea>

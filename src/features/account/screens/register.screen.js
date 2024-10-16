@@ -28,12 +28,9 @@ export const RegisterScreen = ({ navigation }) => {
   const [isActive, setIsActive] = useState(false);
   const [date, setDate] = useState(undefined);
   const {
-    setFirstname,
-    setLastname,
     setDay,
     setMonth,
     setYear,
-    setEmail,
     setPassword,
     handleRegister,
     handleLogin,
@@ -41,6 +38,8 @@ export const RegisterScreen = ({ navigation }) => {
     isVerified,
     isLoading,
     isRegister,
+    user,
+    setUser,
   } = useContext(AccountContext);
   const isActiveButtonAlert = () =>
     Alert.alert(
@@ -74,16 +73,16 @@ export const RegisterScreen = ({ navigation }) => {
           <LeftBlockView>
             <AccountInput
               placeholder="Nom"
-              onChangeText={(n) => setLastname(n)}
+              onChangeText={(n) => setUser({ ...user, lastName: n })}
             />
             <AccountInput
               placeholder="Prénom"
-              onChangeText={(p) => setFirstname(p)}
+              onChangeText={(p) => setUser({ ...user, firstName: p })}
             />
             <AccountInput
               placeholder="E-mail"
               keyboardType="email-address"
-              onChangeText={(e) => setEmail(e)}
+              onChangeText={(e) => setUser({ ...user, email: e })}
             />
           </LeftBlockView>
           <RightBlockView>

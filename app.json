@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "4brain-Kids",
-    "slug": "4brain-Kids",
+    "slug": "4b-kids",
     "version": "1.0.0",
     "orientation": "landscape",
     "icon": "./assets/icon.png",
@@ -21,19 +21,26 @@
           "workspaceKey": "a32356fc4002108dcf4e6c6bd1f61133"
         }
       ]
-
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com4bkids.app"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com4bkids.app"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "fb96ba33-3538-47c1-b048-be0f9fe81e10"
+      }
+    },
+    "owner": "desboches"
   }
 }
